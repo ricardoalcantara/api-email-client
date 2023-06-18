@@ -1,0 +1,35 @@
+package main
+
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/ricardoalcantara/api-email-client/internal/emailengine"
+	"github.com/ricardoalcantara/api-email-client/internal/models"
+	"github.com/ricardoalcantara/api-email-client/internal/setup"
+
+	"github.com/ricardoalcantara/api-email-client/internal/domain/auth"
+	"github.com/ricardoalcantara/api-email-client/internal/domain/email"
+	"github.com/ricardoalcantara/api-email-client/internal/domain/template"
+)
+
+func init() {
+	setup.Env()
+	models.ConnectDataBase()
+	emailengine.Create()
+}
+
+func main() {
+	r := gin.Default()
+	r.GET("/healthcheck", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Ok",
+		})
+	})
+
+	auth.RegisterRoutes(r)
+	email.RegisterRoutes(r)
+	template.RegisterRoutes(r)
+
+	r.Run("localhost:3000")
+}
