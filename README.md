@@ -1,6 +1,6 @@
 # Api Email Client
 
-Simple Api Email Client with template and more for easly send mail
+Simple Api Email Client with template and more for easily send mail
 
 ## Dev Tmp
 
