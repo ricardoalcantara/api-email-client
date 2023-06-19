@@ -2,11 +2,13 @@ package main
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ricardoalcantara/api-email-client/internal/emailengine"
 	"github.com/ricardoalcantara/api-email-client/internal/models"
 	"github.com/ricardoalcantara/api-email-client/internal/setup"
+	"github.com/ricardoalcantara/api-email-client/internal/utils"
 
 	"github.com/ricardoalcantara/api-email-client/internal/domain/auth"
 	"github.com/ricardoalcantara/api-email-client/internal/domain/email"
@@ -31,5 +33,10 @@ func main() {
 	email.RegisterRoutes(r)
 	template.RegisterRoutes(r)
 
-	r.Run("localhost:3000")
+	if host, ok := os.LookupEnv("HOST"); ok {
+		port := utils.GetEnv("PORT", "3000")
+		r.Run(host + ":" + port)
+	} else {
+		r.Run()
+	}
 }
