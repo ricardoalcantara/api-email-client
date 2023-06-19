@@ -27,6 +27,7 @@ func ConnectDataBase() {
 	migrate()
 	createAdmin()
 	createTemplate()
+	createSmtp()
 }
 
 func migrate() {
@@ -36,20 +37,12 @@ func migrate() {
 }
 
 func createAdmin() {
-	var clientId string
-	var clientSecret string
-
-	if value, ok := os.LookupEnv("CLIENT_ID"); ok {
-		clientId = value
-	} else {
-		clientId = utils.GenString(50)
-	}
-
-	if value, ok := os.LookupEnv("CLIENT_SECRET"); ok {
-		clientSecret = value
-	} else {
-		clientSecret = utils.GenString(50)
-	}
+	clientId := utils.GetEnvOr("CLIENT_ID", func() string {
+		return utils.GenString(50)
+	})
+	clientSecret := utils.GetEnvOr("CLIENT_SECRET", func() string {
+		return utils.GenString(100)
+	})
 
 	if err := db.First(&Client{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		log.Debug("Admin Created")
@@ -77,5 +70,20 @@ func createTemplate() {
 		}
 
 		t.Save()
+	}
+}
+
+func createSmtp() {
+	if err := db.First(&Smtp{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		s := Smtp{
+			Name:     "Default",
+			Server:   "localhost",
+			Port:     1025,
+			Email:    "sample@email.com",
+			User:     "sample@email.com",
+			Password: "empty",
+		}
+
+		s.Save()
 	}
 }
