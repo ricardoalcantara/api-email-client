@@ -1,15 +1,14 @@
 package token
 
 import (
-	"encoding/base64"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"github.com/ricardoalcantara/api-email-client/internal/models"
 )
 
@@ -18,21 +17,20 @@ type JwtCustomClaims struct {
 	jwt.RegisteredClaims
 }
 
-func CreateAccessToken(client *models.Client) (accessToken string, err error) {
-	expiry, err := strconv.Atoi(os.Getenv("TOKEN_HOUR_LIFESPAN"))
-	secret := os.Getenv("TOKEN_SECRET")
-
+func CreateAccessToken(client *models.Client, jti uuid.UUID) (accessToken string, err error) {
+	expiry, err := strconv.Atoi(os.Getenv("JWT_LIFESPAN"))
 	if err != nil {
 		return "", err
 	}
 
-	exp := time.Now().Add(time.Hour * time.Duration(expiry))
+	secret := os.Getenv("JWT_SECRET")
+	exp := time.Now().Add(time.Minute * time.Duration(expiry))
 	claims := &JwtCustomClaims{
 		Name: client.Name,
 		RegisteredClaims: jwt.RegisteredClaims{
-			//  strconv.FormatUint(uint64(client.ID), 10)
-			Subject:   base64.StdEncoding.EncodeToString([]byte(strconv.Itoa(int(client.ID)))),
+			Subject:   strconv.Itoa(int(client.ID)),
 			ExpiresAt: jwt.NewNumericDate(exp),
+			ID:        jti.String(),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -43,64 +41,92 @@ func CreateAccessToken(client *models.Client) (accessToken string, err error) {
 	return t, err
 }
 
-func TokenValid(c *gin.Context) error {
-	tokenString := ExtractToken(c)
-	_, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return []byte(os.Getenv("TOKEN_SECRET")), nil
-	})
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func IsAuthorized(requestToken string) (bool, error) {
-	secret := os.Getenv("TOKEN_SECRET")
-	_, err := jwt.Parse(requestToken, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return []byte(secret), nil
-	})
-	if err != nil {
-		return false, err
-	}
-	return true, nil
-}
-
-func ExtractToken(c *gin.Context) string {
-	token := c.Query("token")
-	if token != "" {
-		return token
-	}
-	bearerToken := c.Request.Header.Get("Authorization")
-	if len(strings.Split(bearerToken, " ")) == 2 {
-		return strings.Split(bearerToken, " ")[1]
-	}
-	return ""
-}
-
-func ExtractIDFromToken(requestToken string) (string, error) {
-	secret := os.Getenv("TOKEN_SECRET")
-	token, err := jwt.Parse(requestToken, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return []byte(secret), nil
-	})
-
+func CreateRefreshToken(client *models.Client, jti uuid.UUID) (refreshToken string, err error) {
+	expiry, err := strconv.Atoi(os.Getenv("JWT_REFRESH_LIFESPAN"))
 	if err != nil {
 		return "", err
 	}
 
-	claims, ok := token.Claims.(jwt.MapClaims)
+	secret := os.Getenv("JWT_REFRES_TOKEN_SECRET")
+	exp := time.Now().Add(time.Hour * time.Duration(expiry))
+	claims := &JwtCustomClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			Subject:   strconv.Itoa(int(client.ID)),
+			ExpiresAt: jwt.NewNumericDate(exp),
+			ID:        jti.String(),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	t, err := token.SignedString([]byte(secret))
+	if err != nil {
+		return "", err
+	}
+	return t, err
+}
 
-	if !ok && !token.Valid {
-		return "", fmt.Errorf("invalid Token")
+func IsAuthorized(requestToken string, secret string) (bool, error) {
+	token, err := ExtractToken(requestToken, secret)
+	if err != nil {
+		return false, err
 	}
 
-	return claims["id"].(string), nil
+	if !token.Valid {
+		return false, fmt.Errorf("invalid Token")
+	}
+
+	claims, err := ExtractClaims(token)
+
+	if err != nil {
+		return false, fmt.Errorf("invalid Token in claims")
+	}
+
+	if ok, err := IsBlacklisted(claims); ok {
+		return false, fmt.Errorf("invalid Token")
+	} else if err != nil {
+		return false, fmt.Errorf("invalid Token in blacklist")
+	}
+
+	return true, nil
+}
+
+func ExtractToken(requestToken string, secret string) (*jwt.Token, error) {
+	token, err := jwt.ParseWithClaims(requestToken, &JwtCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("unexpected signing method")
+		}
+		return []byte(secret), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return token, nil
+}
+
+func ExtractClaims(token *jwt.Token) (*JwtCustomClaims, error) {
+	claims, ok := token.Claims.(*JwtCustomClaims)
+
+	if !ok {
+		return nil, fmt.Errorf("invalid Token")
+	}
+	return claims, nil
+}
+
+func IsBlacklisted(claims *JwtCustomClaims) (bool, error) {
+	// key := "jti::black_list::" + claims.RegisteredClaims.ID
+
+	// err := kv.Get(key).Err()
+	// if err != nil && err != redis.Nil {
+	// 	return true, err
+	// } else if err == nil {
+	// 	return true, nil
+	// }
+
+	return false, nil
+}
+
+func BlacklistIt(claims *JwtCustomClaims) {
+	// key := "jti::black_list::" + claims.RegisteredClaims.ID
+	// kv.Set(key, "0", time.Duration(time.Hour*24))
 }

@@ -2,10 +2,11 @@ package utils
 
 import (
 	"encoding/json"
-	"fmt"
 	"math/rand"
 	"os"
 	"runtime"
+
+	"github.com/sirupsen/logrus"
 )
 
 var letters = []rune("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -49,10 +50,17 @@ func TypeConverter[R any](data any) (*R, error) {
 
 func PrintError(err error) string {
 	if err != nil {
-		// notice that we're using 1, so it will actually log where
-		// the error happened, 0 = this function, we don't want that.
 		_, filename, line, _ := runtime.Caller(1)
-		return fmt.Sprintf("%s:%d %v", filename, line, err)
+		logrus.WithFields(logrus.Fields{
+			"filename": filename,
+			"line":     line,
+		}).Error(err)
+		return err.Error()
 	}
 	return ""
+}
+
+func PrintErrorAnd(err error, message string) string {
+	PrintError(err)
+	return message
 }

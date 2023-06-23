@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/ricardoalcantara/api-email-client/internal/models"
 	"github.com/ricardoalcantara/api-email-client/internal/token"
 )
@@ -28,7 +29,8 @@ func Token(c *gin.Context) {
 		return
 	}
 
-	token, err := token.CreateAccessToken(client)
+	jti, _ := uuid.NewUUID()
+	token, err := token.CreateAccessToken(client, jti)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

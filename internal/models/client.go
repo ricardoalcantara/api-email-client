@@ -25,7 +25,7 @@ func LoginCheck(clientId string, clientSecret string) (*Client, error) {
 
 	c := Client{}
 
-	err = db.Debug().Where("client_id = ? AND client_secret = ?", clientId, clientSecret).Take(&c).Error
+	err = db.Where("client_id = ? AND client_secret = ?", clientId, clientSecret).Take(&c).Error
 
 	if err != nil {
 		return nil, err

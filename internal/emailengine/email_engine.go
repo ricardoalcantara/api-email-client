@@ -36,7 +36,7 @@ func Create() {
 	}
 }
 
-func SendEmail(dialer *gomail.Dialer, from string, to string, subject string, html_body string, text_body string) {
+func SendEmail(dialer *gomail.Dialer, from string, to string, subject string, html_body string, text_body string) error {
 	m := gomail.NewMessage()
 
 	m.SetHeader("From", from)
@@ -49,8 +49,5 @@ func SendEmail(dialer *gomail.Dialer, from string, to string, subject string, ht
 		m.AddAlternative("text/html", html_body)
 	}
 
-	if err := dialer.DialAndSend(m); err != nil {
-		fmt.Println(err)
-		panic(err)
-	}
+	return dialer.DialAndSend(m)
 }
