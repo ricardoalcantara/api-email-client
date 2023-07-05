@@ -3,6 +3,7 @@ package middlewares
 import (
 	"encoding/base64"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -13,7 +14,8 @@ import (
 	"github.com/ricardoalcantara/api-email-client/internal/utils"
 )
 
-func AuthMiddleware(secret string) gin.HandlerFunc {
+func AuthMiddleware() gin.HandlerFunc {
+	secret := os.Getenv("JWT_SECRET")
 	return func(c *gin.Context) {
 		tokenType, authToken := getToken(c)
 

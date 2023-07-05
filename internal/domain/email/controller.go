@@ -1,14 +1,14 @@
 package email
 
 import (
-	"os"
-
 	"github.com/gin-gonic/gin"
 	"github.com/ricardoalcantara/api-email-client/internal/middlewares"
 )
 
 func RegisterRoutes(r *gin.Engine) {
 	routes := r.Group("/api")
-	routes.Use(middlewares.AuthMiddleware(os.Getenv("JWT_SECRET")))
+	routes.Use(middlewares.AuthMiddleware())
+	routes.GET("/email", List)
 	routes.POST("/email", SendEmail)
+	routes.GET("/email/:id", Get)
 }

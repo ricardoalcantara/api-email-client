@@ -1,12 +1,15 @@
 package emailengine
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"time"
 
 	h "github.com/matcornic/hermes/v2"
+	"github.com/ricardoalcantara/api-email-client/internal/models"
 	"github.com/ricardoalcantara/api-email-client/internal/utils"
+	"github.com/sirupsen/logrus"
 	gomail "gopkg.in/gomail.v2"
 )
 
@@ -34,19 +37,63 @@ func Create() {
 	if value, ok := os.LookupEnv("APP_TROUBLE_TEXT"); ok {
 		hermes.Product.TroubleText = value
 	}
+
+	if emailChan == nil {
+		emailChan = make(chan models.Email)
+		go worker(emailChan)
+	}
 }
 
-func SendEmail(dialer *gomail.Dialer, from string, to string, subject string, html_body string, text_body string) error {
+var emailChan chan models.Email
+
+func worker(emailChan <-chan models.Email) {
+	for email := range emailChan {
+		var err error
+		var d *gomail.Dialer
+
+		if d, err = email.Smtp.GetDialer(); err != nil {
+			utils.PrintError(err)
+			continue
+		}
+		if err = SendEmail(d, email.Smtp.Email, email.To, email.Subject, email.HtmlBody, email.TextBody); err != nil {
+			utils.PrintError(err)
+			continue
+		}
+
+		if err = models.EmailUpdateSent(email.ID); err != nil {
+			utils.PrintError(err)
+			continue
+		}
+
+		logrus.WithFields(logrus.Fields{
+			"id":      email.ID,
+			"email":   email.Smtp.Email,
+			"to":      email.To,
+			"subject": email.Subject,
+		}).Info("Email Sent")
+	}
+}
+
+func SendEmailQueue(email models.Email) error {
+	select {
+	case emailChan <- email:
+		return nil
+	default:
+		return errors.New("max capacity reached")
+	}
+}
+
+func SendEmail(dialer *gomail.Dialer, from string, to string, subject string, htmlBody string, textBody string) error {
 	m := gomail.NewMessage()
 
 	m.SetHeader("From", from)
 	m.SetHeader("To", to)
 	m.SetHeader("Subject", subject)
-	if len(text_body) > 0 {
-		m.SetBody("text/plain", text_body)
+	if len(textBody) > 0 {
+		m.SetBody("text/plain", textBody)
 	}
-	if len(html_body) > 0 {
-		m.AddAlternative("text/html", html_body)
+	if len(htmlBody) > 0 {
+		m.AddAlternative("text/html", htmlBody)
 	}
 
 	return dialer.DialAndSend(m)

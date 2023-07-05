@@ -9,32 +9,6 @@ import (
 	"github.com/ricardoalcantara/api-email-client/internal/utils"
 )
 
-type Person struct {
-	Name string
-}
-
-type EmailType string
-
-const (
-	Raw      EmailType = "raw"
-	Template EmailType = "template"
-	Dynamic  EmailType = "dynamic"
-)
-
-type SendEmailInput struct {
-	Type         EmailType `json:"type" binding:"required"`
-	TemplateName string    `json:"template_name"`
-	Smtp         string    `json:"smtp" binding:"required"`
-	To           string    `json:"to" binding:"required"`
-	Subject      string    `json:"subject"`
-	Context      any       `json:"context" binding:"required"`
-}
-
-type RawContext struct {
-	Html string `json:"html"`
-	Text string `json:"text"`
-}
-
 func SendEmail(c *gin.Context) {
 	var input SendEmailInput
 
@@ -43,10 +17,20 @@ func SendEmail(c *gin.Context) {
 		return
 	}
 
-	smtp, err := models.SmtpGet(input.Smtp)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": utils.PrintError(err)})
-		return
+	var smtp *models.Smtp
+	var err error
+	if len(input.Smtp) == 0 {
+		smtp, err = models.SmtpGetDefault()
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": utils.PrintError(err)})
+			return
+		}
+	} else {
+		smtp, err = models.SmtpGetByName(input.Smtp)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": utils.PrintError(err)})
+			return
+		}
 	}
 
 	var html, text, subject string
@@ -82,13 +66,13 @@ func SendEmail(c *gin.Context) {
 		}
 
 		if len(t.TemplateHtml) > 0 {
-			html = emailengine.GetTemplate(t.TemplateHtml, Person{Name: "Ricardo"})
+			html = emailengine.GetTemplate(t.TemplateHtml, input.Context)
 		} else {
 			html = ""
 		}
 
 		if len(t.TemplateText) > 0 {
-			text = emailengine.GetTemplate(t.TemplateText, Person{Name: "Ricardo"})
+			text = emailengine.GetTemplate(t.TemplateText, input.Context)
 		} else {
 			text = ""
 		}
@@ -101,12 +85,34 @@ func SendEmail(c *gin.Context) {
 
 	}
 
-	dialer := smtp.GetDialer()
+	email := models.Email{
+		SmtpId:   smtp.ID,
+		To:       input.To,
+		Subject:  subject,
+		HtmlBody: html,
+		TextBody: text,
+	}
 
-	if err = emailengine.SendEmail(dialer, smtp.Email, input.To, subject, html, text); err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": utils.PrintErrorAnd(err, "Could not connect to SMTP server")})
+	if err := email.Save(); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": utils.PrintErrorAnd(err, "Fail sending email")})
 		return
 	}
+
+	email.Smtp = smtp
+
+	// dialer, err := smtp.GetDialer()
+	// *smtp, input.To, subject, html, text)
+	if err = emailengine.SendEmailQueue(email); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": utils.PrintErrorAnd(err, "Fail sending email")})
+		return
+	}
+
+	// go func() {
+	// 	if err = emailengine.SendEmail(dialer, smtp.Email, input.To, subject, html, text); err != nil {
+	// 		utils.PrintError(err)
+	// 	}
+	// 	logrus.Info("Email sent!")
+	// }()
 
 	c.JSON(http.StatusAccepted, gin.H{})
 }

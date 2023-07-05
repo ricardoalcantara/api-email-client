@@ -12,6 +12,7 @@ import (
 
 	"github.com/ricardoalcantara/api-email-client/internal/domain/auth"
 	"github.com/ricardoalcantara/api-email-client/internal/domain/email"
+	"github.com/ricardoalcantara/api-email-client/internal/domain/smtp"
 	"github.com/ricardoalcantara/api-email-client/internal/domain/template"
 )
 
@@ -31,6 +32,7 @@ func main() {
 
 	auth.RegisterRoutes(r)
 	email.RegisterRoutes(r)
+	smtp.RegisterRoutes(r)
 	template.RegisterRoutes(r)
 
 	if host, ok := os.LookupEnv("HOST"); ok {

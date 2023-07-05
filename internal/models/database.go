@@ -34,6 +34,7 @@ func migrate() {
 	db.AutoMigrate(&Client{})
 	db.AutoMigrate(&Smtp{})
 	db.AutoMigrate(&Template{})
+	db.AutoMigrate(&Email{})
 }
 
 func createAdmin() {
@@ -82,8 +83,9 @@ func createSmtp() {
 			Email:    "sample@email.com",
 			User:     "sample@email.com",
 			Password: "empty",
+			Default:  false,
 		}
-
+		s.Base64Password()
 		s.Save()
 	}
 }

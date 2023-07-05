@@ -1,4 +1,4 @@
-package template
+package smtp
 
 import (
 	"github.com/gin-gonic/gin"
@@ -8,10 +8,10 @@ import (
 func RegisterRoutes(r *gin.Engine) {
 	routes := r.Group("/api")
 	routes.Use(middlewares.AuthMiddleware())
-	routes.GET("/template", List)
-	routes.POST("/template/", Post)
-	routes.GET("/template/:id", Get)
-	routes.DELETE("/template/:id", Delete)
+	routes.GET("/smtp", List)
+	routes.POST("/smtp/", Post)
+	routes.GET("/smtp/:id", Get)
+	routes.DELETE("/smtp/:id", Delete)
 }
 
 /*

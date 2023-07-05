@@ -6,22 +6,36 @@ type Template struct {
 	gorm.Model
 	Name         string `gorm:"size:255;not null;"`
 	JsonSchema   string `gorm:"type:text"`
-	Subject   string `gorm:"type:text"`
+	Subject      string `gorm:"type:text"`
 	TemplateHtml string `gorm:"type:text;not null;"`
 	TemplateText string `gorm:"type:text;not null;"`
 }
 
-func (u *Template) Save() (*Template, error) {
-	err := db.Create(&u).Error
-	if err != nil {
-		return nil, err
-	}
-	return u, nil
+func (u *Template) Save() error {
+	return db.Create(&u).Error
 }
 
 func TemplateGet(name string) (*Template, error) {
 	var t = Template{Name: name}
 	err := db.First(&t).Error
+	if err != nil {
+		return nil, err
+	}
+	return &t, nil
+}
+
+func TemplateList(pagination *Pagination) ([]Template, error) {
+	var t []Template
+	err := db.Scopes(pagination.GetScope).Find(&t).Error
+	if err != nil {
+		return nil, err
+	}
+	return t, nil
+}
+
+func TemplateGetById(name string) (*Template, error) {
+	var t = Template{Name: name}
+	err := db.Take(&t).Error
 	if err != nil {
 		return nil, err
 	}
