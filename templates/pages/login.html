@@ -1,0 +1,37 @@
+{{ define "pages/login.html" }}
+
+{{ template "partials/begin.html" }}
+
+<div class="w-full h-screen flex items-center justify-center bg-neutral-content">
+  <div class="prose flex flex-col p-6 w-96
+    bg-base-200 
+    border border-neutral rounded-lg
+    ">
+    <h1 class="w-full text-center">Login</h1>
+    <div>{{ .error }}</div>
+    <form method="POST" class="flex flex-col gap-4">
+      {{ if .redirectTo }}
+      <input type="hidden" name="redirectTo" value="{{ .redirectTo }}">
+      {{ end }}
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text">Client Id</span>
+        </label>
+        <input name="clientId" type="text" placeholder="Type here" value="{{ .clientId }}"
+          class="input input-bordered w-full" />
+      </div>
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text">Client Secret</span>
+        </label>
+        <input name="clientSecret" type="password" placeholder="Type here" class="input input-bordered w-full" />
+      </div>
+
+      <button class="btn btn-primary mt-5" type="submit">Login</button>
+    </form>
+  </div>
+</div>
+
+{{ template "partials/end.html" }}
+
+{{ end }}
