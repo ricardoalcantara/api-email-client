@@ -20,14 +20,18 @@ func getEmail(c *gin.Context) {
 	}
 
 	result := lo.Map(emails, func(e models.Email, index int) email.EmailView {
-		return email.EmailView{
-			ID:       e.ID,
-			SmtpName: e.Smtp.Name,
-			From:     e.Smtp.Email,
-			To:       e.To,
-			Subject:  e.Subject,
-			SentAt:   e.SentAt,
+		emailView := email.EmailView{
+			ID:      e.ID,
+			To:      e.To,
+			Subject: e.Subject,
+			SentAt:  e.SentAt,
 		}
+		if e.Smtp != nil {
+			emailView.SmtpName = e.Smtp.Name
+			emailView.From = e.Smtp.Email
+		}
+
+		return emailView
 	})
 
 	c.HTML(http.StatusOK, "pages/email.html", gin.H{

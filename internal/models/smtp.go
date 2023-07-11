@@ -49,9 +49,9 @@ func SmtpList(pagination *Pagination) ([]Smtp, error) {
 	return s, nil
 }
 
-func SmtpGetById(name string) (*Smtp, error) {
-	var s = Smtp{Name: name}
-	err := db.Take(&s).Error
+func SmtpGetById(id uint) (*Smtp, error) {
+	var s = Smtp{}
+	err := db.Take(&s, id).Error
 	if err != nil {
 		return nil, err
 	}
@@ -91,6 +91,10 @@ func SmtpGetDefault() (*Smtp, error) {
 
 func SmtpDisableDefault() error {
 	return db.Session(&gorm.Session{AllowGlobalUpdate: true}).Model(&Smtp{}).Update("default", false).Error
+}
+
+func SmtpDeleteById(id uint) error {
+	return db.Delete(&Smtp{}, id).Error
 }
 
 func (s *Smtp) GetDialer() (*gomail.Dialer, error) {

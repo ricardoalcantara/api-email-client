@@ -17,7 +17,7 @@
         <label class="label">
           <span class="label-text">Email</span>
         </label>
-        <input name="name" type="text" placeholder="Type here" value="{{ .name }}"
+        <input name="email" type="text" placeholder="Type here" value="{{ .email }}"
           class="input input-bordered w-full" />
       </div>
       <div class="flex gap-2">
@@ -25,29 +25,39 @@
           <label class="label">
             <span class="label-text">Server</span>
           </label>
-          <input name="name" type="text" placeholder="Type here" value="{{ .name }}"
+          <input name="server" type="text" placeholder="Type here" value="{{ .server }}"
             class="input input-bordered w-full" />
         </div>
         <div class="form-control w-24">
           <label class="label">
             <span class="label-text">Port</span>
           </label>
-          <input name="name" type="text" placeholder="000" value="{{ .name }}" class="input input-bordered w-full" />
+          <input name="port" type="text" placeholder="000" value="{{ .port }}" class="input input-bordered w-full" />
         </div>
       </div>
       <div class="form-control w-full">
         <label class="label">
           <span class="label-text">User</span>
         </label>
-        <input name="name" type="text" placeholder="Type here" value="{{ .name }}"
+        <input name="user" type="text" placeholder="Type here" value="{{ .user }}"
           class="input input-bordered w-full" />
       </div>
       <div class="form-control w-full">
         <label class="label">
           <span class="label-text">Password</span>
         </label>
-        <input name="name" type="password" placeholder="Type here" value="{{ .name }}"
+        <input name="password" type="password" placeholder="Type here" value="{{ .password }}"
           class="input input-bordered w-full" />
+      </div>
+      <div class="form-control justify-end">
+        <label class="label cursor-pointer">
+          <span class="label-text">Make Default</span>
+          {{ if .make_default }}
+          <input name="make_default" type="checkbox" class="checkbox" checked />
+          {{ else }}
+          <input name="make_default" type="checkbox" class="checkbox" />
+          {{ end }}
+        </label>
       </div>
       <div class="flex items-end justify-end">
         <button class="btn btn-primary w-1/2" type="submit">Save</button>
@@ -65,6 +75,7 @@
           <th>Email</th>
           <th>User</th>
           <th>Default</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -77,6 +88,12 @@
           <td>{{ .Email }}</td>
           <td>{{ .User }}</td>
           <td>{{ .Default }}</td>
+          <td>
+            <form method="POST" action="/smtp/delete">
+              <input name="smtp_id" type="hidden" value="{{ .ID }}">
+              <button type="submit">Delete</button>
+            </form>
+          </td>
         </tr>
         {{end}}
       </tbody>
