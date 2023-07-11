@@ -13,16 +13,3 @@ func RegisterRoutes(r *gin.Engine) {
 	routes.GET("/template/:id", Get)
 	routes.DELETE("/template/:id", Delete)
 }
-
-/*
-/api/user
-/api/user/me
-*/
-
-/*
-/api/auth/token
-/api/auth/refresh_token
-/api/auth/logout
-/api/auth/password_recovery
-/api/auth/claims
-*/

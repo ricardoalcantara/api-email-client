@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/ricardoalcantara/api-email-client/internal/domain"
 	"github.com/ricardoalcantara/api-email-client/internal/models"
@@ -43,7 +44,7 @@ func AuthMiddleware() gin.HandlerFunc {
 				return
 			}
 
-			c.Set("x-user-id", strconv.Itoa(int(client.ID)))
+			c.Set("x-id", strconv.Itoa(int(client.ID)))
 			c.Next()
 		} else {
 			authorized, err := token.IsAuthorized(authToken, secret)
@@ -63,7 +64,7 @@ func AuthMiddleware() gin.HandlerFunc {
 				return
 			}
 
-			c.Set("x-user-id", claims.RegisteredClaims.Subject)
+			c.Set("x-id", claims.RegisteredClaims.Subject)
 			c.Next()
 		}
 	}
@@ -78,4 +79,18 @@ func getToken(c *gin.Context) (string, string) {
 	}
 
 	return "", ""
+}
+
+func SessionAuthentication() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		session := sessions.Default(c)
+		sessionID := session.Get("id")
+		if sessionID == nil {
+			c.Redirect(http.StatusFound, "/login?redirectTo="+c.Request.URL.Path)
+			c.Abort()
+		}
+
+		c.Set("x-id", sessionID)
+		c.Next()
+	}
 }

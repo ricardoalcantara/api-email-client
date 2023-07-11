@@ -13,16 +13,3 @@ func RegisterRoutes(r *gin.Engine) {
 	routes.GET("/smtp/:id", Get)
 	routes.DELETE("/smtp/:id", Delete)
 }
-
-/*
-/api/user
-/api/user/me
-*/
-
-/*
-/api/auth/token
-/api/auth/refresh_token
-/api/auth/logout
-/api/auth/password_recovery
-/api/auth/claims
-*/

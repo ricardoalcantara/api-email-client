@@ -37,7 +37,11 @@ func EmailGet(id uint) (*Email, error) {
 
 func EmailList(pagination *Pagination) ([]Email, error) {
 	var s []Email
-	err := db.Scopes(pagination.GetScope).Joins("Smtp").Omit("HtmlBody", "TextBody").Find(&s).Error
+	err := db.Scopes(pagination.GetScope).
+		Unscoped().
+		Joins("Smtp").
+		Omit("HtmlBody", "TextBody").
+		Find(&s, "emails.deleted_at IS NULL").Error
 	if err != nil {
 		return nil, err
 	}
