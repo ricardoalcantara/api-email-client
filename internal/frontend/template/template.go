@@ -1,4 +1,4 @@
-package frontend
+package template
 
 import (
 	"net/http"
@@ -30,7 +30,7 @@ func getTemplate(c *gin.Context) {
 		}
 	})
 
-	c.HTML(http.StatusOK, "pages/template.html", gin.H{
+	c.HTML(http.StatusOK, "pages/template/index.html", gin.H{
 		"listTemplate": result,
 	})
 }

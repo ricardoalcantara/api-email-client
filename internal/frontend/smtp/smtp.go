@@ -1,4 +1,4 @@
-package frontend
+package smtp
 
 import (
 	"net/http"
@@ -33,7 +33,7 @@ func getSmtp(c *gin.Context) {
 		}
 	})
 
-	c.HTML(http.StatusOK, "pages/smtp.html", gin.H{
+	c.HTML(http.StatusOK, "pages/smtp/index.html", gin.H{
 		"listSmtp": result,
 	})
 }
@@ -58,7 +58,7 @@ func postSmtp(c *gin.Context) {
 
 	iPort, err := strconv.Atoi(port)
 	if err != nil {
-		c.HTML(http.StatusOK, "pages/smtp.html", gin.H{
+		c.HTML(http.StatusOK, "pages/smtp/register.html", gin.H{
 			"name":         name,
 			"email":        email,
 			"server":       server,
@@ -82,7 +82,7 @@ func postSmtp(c *gin.Context) {
 	smtp.Base64Password()
 	err = smtp.Save()
 	if err != nil {
-		c.HTML(http.StatusOK, "pages/smtp.html", gin.H{
+		c.HTML(http.StatusOK, "pages/smtp/register.html", gin.H{
 			"name":         name,
 			"email":        email,
 			"server":       server,

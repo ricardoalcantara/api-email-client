@@ -1,9 +1,9 @@
-{{ define "pages/template.html" }}
+{{ define "pages/template/register.html" }}
 {{ template "partials/begin.html" }}
 {{ template "partials/header.html" }}
 
 <div class="container mx-auto max-w-5xl flex-grow pt-6 px-2 prose">
-  <h1>Template</h1>
+  <h1>Novo Template</h1>
   <form method="POST">
     <div class="grid grid-cols-2 gap-4">
       <div class="form-control w-full">
@@ -43,32 +43,6 @@
       </div>
     </div>
   </form>
-  <div class="overflow-x-auto">
-    <table class="table">
-      <thead>
-        <tr>
-          <th></th>
-          <th>Name</th>
-          <th>JsonSchema</th>
-          <th>Subject</th>
-          <th>TemplateHtml</th>
-          <th>TemplateText</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{range .listSmtp}}
-        <tr>
-          <th>{{ .ID }}</th>
-          <td>{{ .Name }}</td>
-          <td>{{ .JsonSchema }}</td>
-          <td>{{ .Subject }}</td>
-          <td>{{ .TemplateHtml }}</td>
-          <td>{{ .TemplateText }}</td>
-        </tr>
-        {{end}}
-      </tbody>
-    </table>
-  </div>
 </div>
 
 {{ template "partials/footer.html" }}

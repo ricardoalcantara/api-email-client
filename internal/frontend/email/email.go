@@ -1,4 +1,4 @@
-package frontend
+package email
 
 import (
 	"net/http"
@@ -34,7 +34,7 @@ func getEmail(c *gin.Context) {
 		return emailView
 	})
 
-	c.HTML(http.StatusOK, "pages/email.html", gin.H{
+	c.HTML(http.StatusOK, "pages/email/index.html", gin.H{
 		"listEmail": result,
 	})
 }

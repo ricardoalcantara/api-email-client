@@ -1,4 +1,4 @@
-package frontend
+package login
 
 import (
 	"net/http"
@@ -10,7 +10,7 @@ import (
 
 func getLogin(c *gin.Context) {
 	redirectTo := c.Query("redirectTo")
-	c.HTML(http.StatusOK, "pages/login.html", gin.H{
+	c.HTML(http.StatusOK, "pages/login/index.html", gin.H{
 		"redirectTo": redirectTo,
 	})
 }
@@ -21,7 +21,7 @@ func postLogin(c *gin.Context) {
 
 	client, err := models.LoginCheck(clientId, clientSecret)
 	if err != nil {
-		c.HTML(http.StatusOK, "pages/login.html", gin.H{
+		c.HTML(http.StatusOK, "pages/login/index.html", gin.H{
 			"clientId": clientId,
 			"error":    "Invalid credentials",
 		})

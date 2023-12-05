@@ -1,4 +1,4 @@
-package frontend
+package about
 
 import (
 	"net/http"
@@ -7,5 +7,5 @@ import (
 )
 
 func getAbout(c *gin.Context) {
-	c.HTML(http.StatusOK, "pages/about.html", nil)
+	c.HTML(http.StatusOK, "pages/about/index.html", nil)
 }

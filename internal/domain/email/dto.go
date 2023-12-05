@@ -2,26 +2,12 @@ package email
 
 import "time"
 
-type EmailType string
-
-const (
-	Raw      EmailType = "raw"
-	Template EmailType = "template"
-	Dynamic  EmailType = "dynamic"
-)
-
 type SendEmailInput struct {
-	Type         EmailType `json:"type" binding:"required"`
-	TemplateName string    `json:"template_name"`
-	Smtp         string    `json:"smtp"`
-	To           string    `json:"to" binding:"required"`
-	Subject      string    `json:"subject"`
-	Context      any       `json:"context" binding:"required"`
-}
-
-type RawContext struct {
-	Html string `json:"html"`
-	Text string `json:"text"`
+	TemplateName string `json:"template_name"`
+	SmtpId       uint   `json:"smtp_id"`
+	To           string `json:"to" binding:"required"`
+	Subject      string `json:"subject"`
+	Context      any    `json:"context" binding:"required"`
 }
 
 type EmailView struct {

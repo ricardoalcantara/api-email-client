@@ -9,6 +9,6 @@ func RegisterRoutes(r *gin.Engine) {
 	routes := r.Group("/api")
 	routes.Use(middlewares.AuthMiddleware())
 	routes.GET("/email", List)
-	routes.POST("/email", SendEmail)
+	routes.POST("/email", post)
 	routes.GET("/email/:id", Get)
 }

@@ -3,20 +3,23 @@ package main
 import (
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
-	"github.com/ricardoalcantara/api-email-client/internal/domain/auth"
-	"github.com/ricardoalcantara/api-email-client/internal/domain/email"
-	"github.com/ricardoalcantara/api-email-client/internal/domain/smtp"
-	"github.com/ricardoalcantara/api-email-client/internal/domain/template"
 	"github.com/ricardoalcantara/api-email-client/internal/emailengine"
-	"github.com/ricardoalcantara/api-email-client/internal/frontend"
 	"github.com/ricardoalcantara/api-email-client/internal/models"
 	"github.com/ricardoalcantara/api-email-client/internal/setup"
-	"github.com/ricardoalcantara/api-email-client/internal/utils"
+
+	frontend_about "github.com/ricardoalcantara/api-email-client/internal/frontend/about"
+	frontend_email "github.com/ricardoalcantara/api-email-client/internal/frontend/email"
+	frontend_home "github.com/ricardoalcantara/api-email-client/internal/frontend/home"
+	frontend_login "github.com/ricardoalcantara/api-email-client/internal/frontend/login"
+	frontend_smtp "github.com/ricardoalcantara/api-email-client/internal/frontend/smtp"
+	frontend_template "github.com/ricardoalcantara/api-email-client/internal/frontend/template"
+	frontend_testemail "github.com/ricardoalcantara/api-email-client/internal/frontend/test_email"
 )
 
 func init() {
@@ -27,10 +30,59 @@ func init() {
 
 func main() {
 
-	console := gin.Default()
+	console()
+
+	// api := gin.New()
+	// api.Use(
+	// 	gin.LoggerWithWriter(gin.DefaultWriter, "/healthcheck"),
+	// 	gin.Recovery(),
+	// )
+
+	// api.GET("/healthcheck", func(c *gin.Context) {
+	// 	c.JSON(http.StatusOK, gin.H{
+	// 		"message": "Ok",
+	// 	})
+	// })
+
+	// auth.RegisterRoutes(api)
+	// email.RegisterRoutes(api)
+	// smtp.RegisterRoutes(api)
+	// template.RegisterRoutes(api)
+
+	// if host, ok := os.LookupEnv("HOST"); ok {
+	// 	port := utils.GetEnv("PORT", "3000")
+	// 	api.Run(host + ":" + port)
+	// } else {
+	// 	api.Run()
+	// }
+}
+
+func console() {
+	console := gin.New()
+	console.Use(
+		gin.LoggerWithWriter(gin.DefaultWriter, "/healthcheck"),
+		gin.Recovery(),
+	)
 
 	console.Static("/assets", "./assets")
-	console.LoadHTMLGlob("templates/**/*.html")
+
+	var files []string
+
+	err := filepath.Walk("templates", func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			files = append(files, path)
+		}
+		return nil
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	console.LoadHTMLFiles(files...)
+	// console.LoadHTMLGlob("templates/**/**")
 
 	var sessionSecret string
 	var ok bool
@@ -40,33 +92,22 @@ func main() {
 	store := cookie.NewStore([]byte(sessionSecret))
 	store.Options(sessions.Options{MaxAge: int(time.Duration(time.Minute * 15).Seconds())})
 	console.Use(sessions.Sessions("console_session", store))
-gin.Recovery()
 	console.GET("/healthcheck", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Ok",
 		})
 	})
-	frontend.RegisterRoutes(console)
-
-	go console.Run("localhost:5555")
-
-	api := gin.Default()
-
-	api.GET("/healthcheck", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "Ok",
-		})
+	console.NoRoute(func(c *gin.Context) {
+		c.HTML(http.StatusNotFound, "pages/errors/404.html", nil)
 	})
 
-	auth.RegisterRoutes(api)
-	email.RegisterRoutes(api)
-	smtp.RegisterRoutes(api)
-	template.RegisterRoutes(api)
+	frontend_about.RegisterRoutes(console)
+	frontend_email.RegisterRoutes(console)
+	frontend_home.RegisterRoutes(console)
+	frontend_login.RegisterRoutes(console)
+	frontend_smtp.RegisterRoutes(console)
+	frontend_template.RegisterRoutes(console)
+	frontend_testemail.RegisterRoutes(console)
 
-	if host, ok := os.LookupEnv("HOST"); ok {
-		port := utils.GetEnv("PORT", "3000")
-		api.Run(host + ":" + port)
-	} else {
-		api.Run()
-	}
+	console.Run("localhost:5555")
 }

@@ -4,24 +4,42 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/ricardoalcantara/api-email-client/internal/utils"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 
 	"github.com/glebarez/sqlite"
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 var db *gorm.DB
 
 func ConnectDataBase() {
-	db_url := os.Getenv("DB_URL")
+	dbUrl := os.Getenv("DB_URL")
+	envDialector := os.Getenv("DB_DIALECTOR")
 	var err error
-	db, err = gorm.Open(sqlite.Open(db_url), &gorm.Config{})
+	var dialector gorm.Dialector
+	switch strings.ToLower(envDialector) {
+	case "sqlite":
+		dialector = sqlite.Open(dbUrl)
+	case "mysql":
+		dialector = mysql.Open(dbUrl)
+	case "postgres":
+		dialector = postgres.Open(dbUrl)
+	default:
+		log.Fatal().Err(err).Msg("connection error:")
+	}
+	db, err = gorm.Open(dialector, &gorm.Config{
+		SkipDefaultTransaction: true,
+		PrepareStmt:            true,
+	})
 	if err != nil {
-		log.Fatal("connection error:", err)
+		log.Fatal().Err(err).Msg("connection error:")
 	} else {
-		log.Debug("Db Connected")
+		log.Debug().Msg("Db Connected")
 	}
 
 	migrate()
@@ -46,7 +64,7 @@ func createAdmin() {
 	})
 
 	if err := db.First(&Client{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-		log.Debug("Admin Created")
+		log.Debug().Msg("Admin Created")
 
 		client := Client{
 			Name:         "Admin",

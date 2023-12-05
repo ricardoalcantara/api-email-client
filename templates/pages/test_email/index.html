@@ -1,0 +1,54 @@
+{{ define "pages/test_email/index.html" }}
+{{ template "partials/begin.html" }}
+{{ template "partials/header.html" }}
+
+<div class="container mx-auto max-w-5xl flex-grow pt-6 px-2 prose">
+  <h1>Test Email</h1>
+  <form method="POST">
+    <div class="flex flex-col gap-4">
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text">Template</span>
+        </label>
+        <select class="select select-bordered w-full">
+          <option></option>
+          <option></option>
+          <option></option>
+          <option></option>
+          <option></option>
+        </select>
+      </div>
+
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text">To</span>
+        </label>
+        <input name="name" type="text" placeholder="Type here" value="{{ .name }}"
+          class="input input-bordered w-full" />
+      </div>
+
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text">Assunto</span>
+        </label>
+        <input name="name" type="text" placeholder="Type here" value="{{ .name }}"
+          class="input input-bordered w-full" />
+      </div>
+
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">Json</span>
+        </label>
+        <textarea class="textarea textarea-bordered h-24" placeholder="<h1>Hello , {{ `{{ .Name }}` }}</h1>"></textarea>
+      </div>
+
+      <div class="flex items-end justify-end">
+        <button class="btn btn-primary w-1/2" type="submit">Enviar</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+{{ template "partials/footer.html" }}
+{{ template "partials/end.html" }}
+{{ end }}

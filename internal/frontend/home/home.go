@@ -1,4 +1,4 @@
-package frontend
+package home
 
 import (
 	"net/http"
@@ -7,5 +7,5 @@ import (
 )
 
 func getHome(c *gin.Context) {
-	c.HTML(http.StatusOK, "pages/index.html", nil)
+	c.HTML(http.StatusOK, "pages/home/index.html", nil)
 }
