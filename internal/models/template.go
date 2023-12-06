@@ -5,7 +5,6 @@ import "gorm.io/gorm"
 type Template struct {
 	gorm.Model
 	Name         string `gorm:"size:255;not null;"`
-	JsonSchema   string `gorm:"type:text"`
 	Subject      string `gorm:"type:text"`
 	TemplateHtml string `gorm:"type:text;not null;"`
 	TemplateText string `gorm:"type:text;not null;"`

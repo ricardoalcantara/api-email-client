@@ -23,7 +23,6 @@ func getIndex(c *gin.Context) {
 		return template.TemplateView{
 			ID:           t.ID,
 			Name:         t.Name,
-			JsonSchema:   t.JsonSchema,
 			Subject:      t.Subject,
 			TemplateHtml: t.TemplateHtml,
 			TemplateText: t.TemplateText,

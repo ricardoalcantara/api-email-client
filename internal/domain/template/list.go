@@ -22,7 +22,6 @@ func List(c *gin.Context) {
 		return TemplateView{
 			ID:           t.ID,
 			Name:         t.Name,
-			JsonSchema:   t.JsonSchema,
 			Subject:      t.Subject,
 			TemplateHtml: t.TemplateHtml,
 			TemplateText: t.TemplateText,
