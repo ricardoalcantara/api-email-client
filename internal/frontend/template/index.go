@@ -11,7 +11,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func getTemplate(c *gin.Context) {
+func getIndex(c *gin.Context) {
 	p := models.NewPagination(c)
 	templates, err := models.TemplateList(p)
 	if err != nil {

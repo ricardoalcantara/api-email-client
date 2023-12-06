@@ -8,5 +8,6 @@ import (
 func RegisterRoutes(r *gin.Engine) {
 	authorized := r.Group("/")
 	authorized.Use(middlewares.SessionAuthentication())
-	authorized.GET("/email", getEmail)
+	authorized.GET("/email", getIndex)
+	authorized.GET("/email/send_email", getSendEmail)
 }

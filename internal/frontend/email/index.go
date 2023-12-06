@@ -11,7 +11,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func getEmail(c *gin.Context) {
+func getIndex(c *gin.Context) {
 	p := models.NewPagination(c)
 	emails, err := models.EmailList(p)
 	if err != nil {

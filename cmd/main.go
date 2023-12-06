@@ -19,7 +19,6 @@ import (
 	frontend_login "github.com/ricardoalcantara/api-email-client/internal/frontend/login"
 	frontend_smtp "github.com/ricardoalcantara/api-email-client/internal/frontend/smtp"
 	frontend_template "github.com/ricardoalcantara/api-email-client/internal/frontend/template"
-	frontend_testemail "github.com/ricardoalcantara/api-email-client/internal/frontend/test_email"
 )
 
 func init() {
@@ -107,7 +106,6 @@ func console() {
 	frontend_login.RegisterRoutes(console)
 	frontend_smtp.RegisterRoutes(console)
 	frontend_template.RegisterRoutes(console)
-	frontend_testemail.RegisterRoutes(console)
 
 	console.Run("localhost:5555")
 }
