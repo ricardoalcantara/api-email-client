@@ -9,7 +9,10 @@ func RegisterRoutes(r *gin.Engine) {
 
 	authorized := r.Group("/")
 	authorized.Use(middlewares.SessionAuthentication())
-	authorized.GET("/smtp", getSmtp)
-	authorized.POST("/smtp", postSmtp)
-	authorized.POST("/smtp/delete", deleteSmtp)
+	authorized.GET("/smtp", getIndex)
+
+	authorized.GET("/smtp/register", getRegister)
+	authorized.POST("/smtp/register", postSmtp)
+
+	authorized.DELETE("/smtp/delete", deleteSmtp)
 }

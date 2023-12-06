@@ -1,4 +1,4 @@
-package smtp
+package template
 
 import (
 	"net/http"
@@ -6,39 +6,16 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/ricardoalcantara/api-email-client/internal/domain"
-	"github.com/ricardoalcantara/api-email-client/internal/domain/smtp"
 	"github.com/ricardoalcantara/api-email-client/internal/models"
 	"github.com/ricardoalcantara/api-email-client/internal/utils"
-	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
 )
 
-func getSmtp(c *gin.Context) {
-	p := models.NewPagination(c)
-	smtps, err := models.SmtpList(p)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, domain.ErrorResponse{Error: utils.PrintError(err)})
-		return
-	}
-
-	result := lo.Map(smtps, func(s models.Smtp, index int) smtp.SmtpView {
-		return smtp.SmtpView{
-			ID:      s.ID,
-			Name:    s.Name,
-			Server:  s.Server,
-			Port:    s.Port,
-			Email:   s.Email,
-			User:    s.User,
-			Default: s.Default,
-		}
-	})
-
-	c.HTML(http.StatusOK, "pages/smtp/index.html", gin.H{
-		"listSmtp": result,
-	})
+func getRegister(c *gin.Context) {
+	c.HTML(http.StatusOK, "pages/template/register.html", nil)
 }
 
-func postSmtp(c *gin.Context) {
+func postTemplate(c *gin.Context) {
 	name := c.PostForm("name")
 	email := c.PostForm("email")
 	server := c.PostForm("server")
@@ -58,7 +35,7 @@ func postSmtp(c *gin.Context) {
 
 	iPort, err := strconv.Atoi(port)
 	if err != nil {
-		c.HTML(http.StatusOK, "pages/smtp/register.html", gin.H{
+		c.HTML(http.StatusOK, "pages/template/register.html", gin.H{
 			"name":         name,
 			"email":        email,
 			"server":       server,
@@ -69,7 +46,7 @@ func postSmtp(c *gin.Context) {
 		return
 	}
 
-	smtp := models.Smtp{
+	template := models.Smtp{
 		Name:     name,
 		Server:   server,
 		Port:     uint16(iPort),
@@ -79,10 +56,10 @@ func postSmtp(c *gin.Context) {
 		Default:  make_default,
 	}
 
-	smtp.Base64Password()
-	err = smtp.Save()
+	template.Base64Password()
+	err = template.Save()
 	if err != nil {
-		c.HTML(http.StatusOK, "pages/smtp/register.html", gin.H{
+		c.HTML(http.StatusOK, "pages/template/register.html", gin.H{
 			"name":         name,
 			"email":        email,
 			"server":       server,
@@ -93,19 +70,5 @@ func postSmtp(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(http.StatusFound, "/smtp")
-}
-
-func deleteSmtp(c *gin.Context) {
-	smtpId := c.PostForm("smtp_id")
-	if len(smtpId) > 0 {
-		id, err := strconv.Atoi(smtpId)
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusBadRequest, domain.ErrorResponse{Error: utils.PrintError(err)})
-			return
-		}
-		models.SmtpDeleteById(uint(id))
-	}
-
-	c.Redirect(http.StatusFound, "/smtp")
+	c.Redirect(http.StatusFound, "/template")
 }

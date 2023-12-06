@@ -85,7 +85,6 @@ func createTemplate() {
 			Name:         "Default",
 			TemplateHtml: "<h1>{{.Name}}</h1>",
 			TemplateText: "{{.Name}}",
-			JsonSchema:   "{ Name: string }",
 		}
 
 		t.Save()

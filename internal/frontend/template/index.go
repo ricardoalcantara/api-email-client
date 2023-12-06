@@ -11,7 +11,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func getTemplate(c *gin.Context) {
+func getIndex(c *gin.Context) {
 	p := models.NewPagination(c)
 	templates, err := models.TemplateList(p)
 	if err != nil {
@@ -23,7 +23,6 @@ func getTemplate(c *gin.Context) {
 		return template.TemplateView{
 			ID:           t.ID,
 			Name:         t.Name,
-			JsonSchema:   t.JsonSchema,
 			Subject:      t.Subject,
 			TemplateHtml: t.TemplateHtml,
 			TemplateText: t.TemplateText,
