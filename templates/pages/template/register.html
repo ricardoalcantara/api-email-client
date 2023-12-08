@@ -17,20 +17,22 @@
         <label class="label">
           <span class="label-text">Subject</span>
         </label>
-        <input name="name" type="text" placeholder="Type here" value="{{ .name }}"
+        <input name="subject" type="text" placeholder="Type here" value="{{ .subject }}"
           class="input input-bordered w-full" />
       </div>
       <div class="form-control">
         <label class="label">
           <span class="label-text">Html Template</span>
         </label>
-        <textarea class="textarea textarea-bordered h-24" placeholder="<h1>Hello , {{ `{{ .Name }}` }}</h1>"></textarea>
+        <textarea name="template-html" class="textarea textarea-bordered h-24"
+          placeholder="<h1>Hello , {{ `{{ .Name }}` }}</h1>">{{ .templateHtml }}</textarea>
       </div>
       <div class="form-control">
         <label class="label">
           <span class="label-text">Text Template</span>
         </label>
-        <textarea class="textarea textarea-bordered h-24" placeholder="Hello World"></textarea>
+        <textarea name="template-text" class="textarea textarea-bordered h-24"
+          placeholder="Hello World">{{ .templateText }}</textarea>
       </div>
       <div class="flex items-end justify-end">
         <button class="btn btn-primary w-1/2" type="submit">Save</button>

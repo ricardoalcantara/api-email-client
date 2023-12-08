@@ -3,11 +3,11 @@ package email
 import "time"
 
 type SendEmailInput struct {
-	TemplateName string `json:"template_name"`
-	SmtpId       uint   `json:"smtp_id"`
-	To           string `json:"to" binding:"required"`
-	Subject      string `json:"subject"`
-	Context      any    `json:"context" binding:"required"`
+	TemplateId uint   `json:"template_id"`
+	SmtpId     uint   `json:"smtp_id"`
+	To         string `json:"to" binding:"required"`
+	Subject    string `json:"subject"`
+	Data       any    `json:"data" binding:"required"`
 }
 
 type EmailView struct {

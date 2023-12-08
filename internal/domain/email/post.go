@@ -33,14 +33,14 @@ func post(c *gin.Context) {
 		}
 	}
 
-	t, err := models.TemplateGet("Default")
+	t, err := models.TemplateGet(input.TemplateId)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": utils.PrintError(err)})
 		return
 	}
 
-	html := emailengine.GetTemplate(t.TemplateHtml, input.Context)
-	text := emailengine.GetTemplate(t.TemplateText, input.Context)
+	html := emailengine.GetTemplate(t.TemplateHtml, input.Data)
+	text := emailengine.GetTemplate(t.TemplateText, input.Data)
 
 	var subject string
 	if len(input.Subject) > 0 {

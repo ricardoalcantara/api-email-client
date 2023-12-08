@@ -14,5 +14,5 @@ func RegisterRoutes(r *gin.Engine) {
 	authorized.GET("/smtp/register", getRegister)
 	authorized.POST("/smtp/register", postSmtp)
 
-	authorized.DELETE("/smtp/delete", deleteSmtp)
+	authorized.POST("/smtp/delete", deleteSmtp)
 }

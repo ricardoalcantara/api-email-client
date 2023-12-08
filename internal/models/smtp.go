@@ -10,7 +10,7 @@ import (
 
 type Smtp struct {
 	gorm.Model
-	Name     string `gorm:"size:255;not null;unique"`
+	Name     string `gorm:"size:255;not null;"`
 	Server   string `gorm:"size:255;not null;"`
 	Port     uint16 `gorm:"smallint;not null;"`
 	Email    string `gorm:"size:255;not null;"`

@@ -14,9 +14,9 @@ func (u *Template) Save() error {
 	return db.Create(&u).Error
 }
 
-func TemplateGet(name string) (*Template, error) {
-	var t = Template{Name: name}
-	err := db.First(&t).Error
+func TemplateGet(id uint) (*Template, error) {
+	var t Template
+	err := db.Where("id = ?", id).Take(&t).Error
 	if err != nil {
 		return nil, err
 	}
