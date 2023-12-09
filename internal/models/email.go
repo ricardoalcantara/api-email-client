@@ -8,7 +8,7 @@ import (
 
 type Email struct {
 	gorm.Model
-	SentAt   time.Time
+	SentAt   *time.Time
 	SmtpId   uint
 	To       string `gorm:"size:255;not null;"`
 	Subject  string `gorm:"size:255;not null;"`

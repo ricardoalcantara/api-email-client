@@ -53,12 +53,9 @@ func main() {
 	smtp.RegisterRoutes(api)
 	template.RegisterRoutes(api)
 
-	if host, ok := os.LookupEnv("HOST"); ok {
-		port := utils.GetEnv("PORT", "3000")
-		api.Run(host + ":" + port)
-	} else {
-		api.Run()
-	}
+	host := utils.GetEnv("API_HOST", "")
+	port := utils.GetEnv("API_PORT", "5555")
+	api.Run(host + ":" + port)
 }
 
 func console() {
@@ -112,5 +109,8 @@ func console() {
 	frontend_smtp.RegisterRoutes(console)
 	frontend_template.RegisterRoutes(console)
 
+	host := utils.GetEnv("CONSOLE_HOST", "")
+	port := utils.GetEnv("CONSOLE_PORT", "5566")
+	console.Run(host + ":" + port)
 	console.Run("localhost:5555")
 }
