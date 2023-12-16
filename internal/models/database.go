@@ -57,7 +57,7 @@ func migrate() {
 
 func createAdmin() {
 
-	if err := db.First(&Client{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+	if err := db.Take(&Client{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		clientId := utils.GetEnvOr("CLIENT_ID", func() string {
 			return utils.GenString(50)
 		})
@@ -81,7 +81,7 @@ func createAdmin() {
 }
 
 func createTemplate() {
-	if err := db.First(&Template{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+	if err := db.Take(&Template{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		t := Template{
 			Name:         "Default",
 			TemplateHtml: "<h1>{{.Name}}</h1>",
@@ -93,7 +93,7 @@ func createTemplate() {
 }
 
 func createSmtp() {
-	if err := db.First(&Smtp{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+	if err := db.Take(&Smtp{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		s := Smtp{
 			Name:     "Default",
 			Server:   "localhost",
