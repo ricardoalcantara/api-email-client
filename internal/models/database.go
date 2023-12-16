@@ -56,14 +56,15 @@ func migrate() {
 }
 
 func createAdmin() {
-	clientId := utils.GetEnvOr("CLIENT_ID", func() string {
-		return utils.GenString(50)
-	})
-	clientSecret := utils.GetEnvOr("CLIENT_SECRET", func() string {
-		return utils.GenString(100)
-	})
 
 	if err := db.First(&Client{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		clientId := utils.GetEnvOr("CLIENT_ID", func() string {
+			return utils.GenString(50)
+		})
+		clientSecret := utils.GetEnvOr("CLIENT_SECRET", func() string {
+			return utils.GenString(100)
+		})
+
 		log.Debug().Msg("Admin Created")
 
 		client := Client{
