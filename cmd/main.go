@@ -2,6 +2,9 @@ package main
 
 import (
 	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ricardoalcantara/api-email-client/internal/domain/auth"
@@ -12,16 +15,26 @@ import (
 	"github.com/ricardoalcantara/api-email-client/internal/models"
 	"github.com/ricardoalcantara/api-email-client/internal/setup"
 	"github.com/ricardoalcantara/api-email-client/internal/utils"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 func init() {
+	zerolog.CallerMarshalFunc = func(pc uintptr, file string, line int) string {
+		return filepath.Base(file) + ":" + strconv.Itoa(line)
+	}
+	log.Logger = log.
+		With().
+		Caller().
+		Logger().
+		Output(zerolog.ConsoleWriter{Out: os.Stderr})
+
 	setup.Env()
 	models.ConnectDataBase()
 	emailengine.Create()
 }
 
 func main() {
-
 	api := gin.New()
 	api.Use(
 		gin.LoggerWithWriter(gin.DefaultWriter, "/healthcheck"),

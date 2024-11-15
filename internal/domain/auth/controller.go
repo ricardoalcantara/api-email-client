@@ -4,7 +4,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type AuthController struct {
+	service AuthService
+}
+
 func RegisterRoutes(r *gin.Engine) {
+	controller := AuthController{}
 	routes := r.Group("/api")
-	routes.GET("/auth/token", Token)
+	routes.POST("/auth/token", controller.token)
 }

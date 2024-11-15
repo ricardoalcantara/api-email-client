@@ -1,13 +1,12 @@
 package middlewares
 
 import (
-	"encoding/base64"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/ricardoalcantara/api-email-client/internal/domain"
 	"github.com/ricardoalcantara/api-email-client/internal/models"
@@ -20,54 +19,57 @@ func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenType, authToken := getToken(c)
 
-		if len(authToken) == 0 || (tokenType != "Basic" && tokenType != "Bearer") {
+		if len(authToken) == 0 {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrorResponse{Error: "Not authorized"})
 			return
 		}
 
-		if tokenType == "Basic" {
-			decoded, err := base64.StdEncoding.DecodeString(authToken)
-			if err != nil {
-				c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrorResponse{Error: utils.PrintError(err)})
-				return
-			}
-
-			cred := strings.Split(string(decoded), ":")
-			if len(cred) != 2 {
-				c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrorResponse{Error: "Not authorized"})
-				return
-			}
-
-			client, err := models.LoginCheck(cred[0], cred[1])
-			if err != nil {
-				c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrorResponse{Error: "Not authorized"})
-				return
-			}
-
-			c.Set("x-id", strconv.Itoa(int(client.ID)))
-			c.Next()
-		} else {
-			authorized, err := token.IsAuthorized(authToken, secret)
-			if !authorized {
-				c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrorResponse{Error: utils.PrintError(err)})
-				return
-			}
-
-			accessToken, err := token.ExtractToken(authToken, secret)
-			if err != nil {
-				c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrorResponse{Error: utils.PrintError(err)})
-				return
-			}
-			claims, err := token.ExtractClaims(accessToken)
-			if err != nil {
-				c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrorResponse{Error: utils.PrintError(err)})
-				return
-			}
-
-			c.Set("x-id", claims.RegisteredClaims.Subject)
-			c.Next()
+		switch tokenType {
+		case "ApiKey":
+			authApiKey(c, authToken)
+		case "Bearer":
+			authBearer(c, authToken, secret)
+		default:
+			c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrorResponse{Error: "Not authorized"})
 		}
 	}
+}
+
+func authBearer(c *gin.Context, authToken string, secret string) {
+	authorized, err := token.IsAuthorized(authToken, secret)
+	if !authorized {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrorResponse{Error: utils.PrintError(err)})
+		return
+	}
+
+	accessToken, err := token.ExtractToken(authToken, secret)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrorResponse{Error: utils.PrintError(err)})
+		return
+	}
+	claims, err := token.ExtractClaims(accessToken)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrorResponse{Error: utils.PrintError(err)})
+		return
+	}
+
+	c.Set("x-id", claims.RegisteredClaims.Subject)
+	c.Next()
+}
+
+func authApiKey(c *gin.Context, authToken string) {
+	dbApiKey, err := models.GetApiKeyByHash(authToken)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrorResponse{Error: utils.PrintError(err)})
+		return
+	}
+	if dbApiKey.ExpiresAt != nil && dbApiKey.ExpiresAt.Before(time.Now()) {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrorResponse{Error: "Expired"})
+		return
+	}
+
+	c.Set("x-id", strconv.Itoa(int(dbApiKey.UserId)))
+	c.Next()
 }
 
 func getToken(c *gin.Context) (string, string) {
@@ -79,18 +81,4 @@ func getToken(c *gin.Context) (string, string) {
 	}
 
 	return "", ""
-}
-
-func SessionAuthentication() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		session := sessions.Default(c)
-		sessionID := session.Get("id")
-		if sessionID == nil {
-			c.Redirect(http.StatusFound, "/login?redirectTo="+c.Request.URL.Path)
-			c.Abort()
-		}
-
-		c.Set("x-id", sessionID)
-		c.Next()
-	}
 }
