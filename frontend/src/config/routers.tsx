@@ -1,8 +1,15 @@
 import { createBrowserRouter } from "react-router-dom";
-import { Home } from "@/pages/home";
-import { Login } from "@/pages/login";
 import ProtectedRouter from "@/components/router/protected-router";
 import MainLayout from "@/layouts/main-layout";
+
+import { Home } from "@/pages/home";
+import { Login } from "@/pages/login";
+import TemplateList from "@/pages/template";
+import TemplateCreate from "@/pages/template/new";
+import SmtpList from "@/pages/smtp";
+import SmtpCreate from "@/pages/smtp/new";
+import EmailList from "@/pages/email";
+import ApiKeyList from "@/pages/api-key";
 
 const Routers = createBrowserRouter([
   {
@@ -17,7 +24,11 @@ const Routers = createBrowserRouter([
           },
           {
             path: "/template",
-            element: <h1>template</h1>,
+            element: <TemplateList />,
+          },
+          {
+            path: "/template/new",
+            element: <TemplateCreate />,
           },
           {
             path: "/template/:id",
@@ -25,7 +36,11 @@ const Routers = createBrowserRouter([
           },
           {
             path: "/smtp",
-            element: <h1>smtp</h1>,
+            element: <SmtpList />,
+          },
+          {
+            path: "/smtp/new",
+            element: <SmtpCreate />,
           },
           {
             path: "/smtp/:id",
@@ -33,11 +48,11 @@ const Routers = createBrowserRouter([
           },
           {
             path: "/email",
-            element: <h1>email</h1>,
+            element: <EmailList />,
           },
           {
             path: "/api-key",
-            element: <h1>Api Keys</h1>,
+            element: <ApiKeyList />,
           },
         ],
       },
