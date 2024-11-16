@@ -1,54 +1,52 @@
-// src/layouts/DashboardLayout.tsx
-import { Link, Outlet, useLocation } from "react-router-dom"
-import { cn } from "@/lib/utils"
 import {
-  LayoutDashboard,
-  Mail,
-  FileCode,
-  Server,
-  Key
-} from "lucide-react"
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { Outlet } from "react-router-dom";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Separator } from "@/components/ui/separator";
+import { QuitButton } from "@/components/quit-button";
 
-export default function DashboardLayout() {
-  const location = useLocation()
-
-  const menuItems = [
-    { path: "/", label: "Dashboard", icon: LayoutDashboard },
-    { path: "/templates", label: "Templates", icon: FileCode },
-    { path: "/smtp", label: "SMTP", icon: Server },
-    { path: "/emails", label: "Emails", icon: Mail },
-    { path: "/api-keys", label: "API Keys", icon: Key },
-  ]
-
+export default function Layout() {
   return (
-    <div className="min-h-screen flex dark:bg-gray-950">
-      {/* Sidebar */}
-      <aside className="w-64 border-r dark:border-gray-800">
-        <nav className="space-y-1 px-2">
-          {menuItems.map((item) => {
-            const Icon = item.icon
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
-                  "hover:bg-gray-100 dark:hover:bg-gray-800",
-                  location.pathname === item.path && "bg-gray-100 dark:bg-gray-800"
-                )}
-              >
-                <Icon className="h-5 w-5" />
-                <span>{item.label}</span>
-              </Link>
-            )
-          })}
-        </nav>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1">
-        <Outlet />
-      </main>
-    </div>
-  )
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center justify-between gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+          <div className="flex items-center gap-2 px-4">
+            <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className="hidden md:block">
+                  <BreadcrumbLink href="#">
+                    Building Your Application
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+          <div className="flex items-center gap-2 px-4">
+            <QuitButton />
+          </div>
+        </header>
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+          <Outlet />
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
+  );
 }
