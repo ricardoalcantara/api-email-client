@@ -2,7 +2,6 @@ package template
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -55,11 +54,9 @@ func (controller *TemplateController) post(c *gin.Context) {
 }
 
 func (controller *TemplateController) patch(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		errId := uuid.New()
-		log.Error().Str("error_id", errId.String()).Err(err).Msg("Error")
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Error: "Internal Server Error: " + errId.String()})
+	slug := c.Param("slug")
+	if slug == "" {
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Error: "id/slug is required"})
 		return
 	}
 
@@ -71,7 +68,7 @@ func (controller *TemplateController) patch(c *gin.Context) {
 		return
 	}
 
-	templateDto, err := controller.service.Update(uint(id), &input)
+	templateDto, err := controller.service.Patch(slug, &input)
 	if err != nil {
 		errId := uuid.New()
 		log.Error().Str("error_id", errId.String()).Err(err).Msg("Error")
@@ -82,15 +79,43 @@ func (controller *TemplateController) patch(c *gin.Context) {
 	c.JSON(http.StatusAccepted, templateDto)
 }
 
-func (controller *TemplateController) get(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		errId := uuid.New()
-		log.Error().Str("error_id", errId.String()).Err(err).Msg("Error")
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Error: "Internal Server Error: " + errId.String()})
+func (controller *TemplateController) put(c *gin.Context) {
+	slug := c.Param("slug")
+	if slug == "" {
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Error: "id/slug is required"})
 		return
 	}
-	template, err := controller.service.Get(uint(id))
+
+	var input UpdateTemplateDto
+	if err := c.ShouldBindJSON(&input); err != nil {
+		log.Debug().Err(err).Msg("Error")
+		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	templateDto, err := controller.service.Update(slug, &input)
+	if err != nil {
+		log.Debug().Err(err).Msg("Error")
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusAccepted, templateDto)
+}
+
+func (controller *TemplateController) get(c *gin.Context) {
+	slug := c.Param("slug")
+	if slug == "" {
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Error: "id/slug is required"})
+		return
+	}
+
+	template, err := controller.service.Get(slug)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Error: err.Error()})
+		return
+	}
+
 	if err != nil {
 		errId := uuid.New()
 		log.Error().Str("error_id", errId.String()).Err(err).Msg("Error")
@@ -102,14 +127,13 @@ func (controller *TemplateController) get(c *gin.Context) {
 }
 
 func (controller *TemplateController) delete(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		errId := uuid.New()
-		log.Error().Str("error_id", errId.String()).Err(err).Msg("Error")
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Error: "Internal Server Error: " + errId.String()})
+	slug := c.Param("slug")
+	if slug == "" {
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Error: "id/slug is required"})
 		return
 	}
-	err = controller.service.Delete(uint(id))
+
+	err := controller.service.Delete(slug)
 	if err != nil {
 		errId := uuid.New()
 		log.Error().Str("error_id", errId.String()).Err(err).Msg("Error")
@@ -128,7 +152,8 @@ func RegisterRoutes(r *gin.Engine) {
 	routes.Use(middlewares.AuthMiddleware())
 	routes.GET("/template", controller.list)
 	routes.POST("/template", controller.post)
-	routes.GET("/template/:id", controller.get)
-	routes.DELETE("/template/:id", controller.delete)
-	routes.PATCH("/template/:id", controller.patch)
+	routes.GET("/template/:slug", controller.get)
+	routes.DELETE("/template/:slug", controller.delete)
+	routes.PATCH("/template/:slug", controller.patch)
+	routes.PUT("/template/:slug", controller.put)
 }

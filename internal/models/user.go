@@ -29,7 +29,7 @@ func (u *User) SetPassword(password string) error {
 	return nil
 }
 
-var ErrMismatchedHashAndPassword = errors.New("mismatched hash and password")
+var ErrMismatchedHashAndPassword = errors.New("invalid email or password")
 
 func (u *User) VerifyPassword(password string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))

@@ -10,15 +10,16 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useListTemplatesQuery } from "@/services";
+import { TemplateDto } from "@/services/dto";
 
 const TemplateList = () => {
+  const navigate = useNavigate();
   const { data: templates, isLoading, isError } = useListTemplatesQuery();
 
-  const handleRowClick = (item: any) => {
-    // Handle row click for editing
-    console.log("Edit item:", item);
+  const handleRowClick = (item: TemplateDto) => {
+    navigate(`/template/${item.slug}`);
   };
 
   return (
@@ -41,6 +42,7 @@ const TemplateList = () => {
                   <TableHead className="w-24">ID</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Subject</TableHead>
+                  <TableHead>Slug</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -53,6 +55,7 @@ const TemplateList = () => {
                     <TableCell className="font-medium">{item.id}</TableCell>
                     <TableCell>{item.name}</TableCell>
                     <TableCell>{item.subject}</TableCell>
+                    <TableCell>{item.slug}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

@@ -15,10 +15,13 @@ export interface ListView<T> {
 export interface TemplateDto {
   id: string;
   name: string;
+  slug: string;
+  json_schema: string;
   description: string;
   subject: string;
-  html: string;
-  text: string;
+  template_html: string;
+  template_text: string;
 }
 
 export type CreateTemplateDto = Omit<TemplateDto, "id">;
+export type UpdateTemplateDto = Partial<TemplateDto>;

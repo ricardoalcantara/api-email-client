@@ -26,16 +26,18 @@ func (s *TemplateService) Create(templateDto *CreateTemplateDto) (*TemplateDto, 
 		return nil, err
 	}
 
-	return NewTemplateDto(&template), nil
+	view := NewTemplateDto(&template)
+	return &view, nil
 }
 
-func (s *TemplateService) Get(id uint) (*TemplateDto, error) {
-	template, err := models.TemplateGet(id)
+func (s *TemplateService) Get(slug string) (*TemplateDto, error) {
+	template, err := models.TemplateGetBySlug(slug)
 	if err != nil {
 		return nil, err
 	}
 
-	return NewTemplateDto(template), nil
+	view := NewTemplateDto(template)
+	return &view, nil
 }
 
 func (s *TemplateService) List(pagination *models.Pagination) (*domain.ListView[TemplateDto], error) {
@@ -46,20 +48,14 @@ func (s *TemplateService) List(pagination *models.Pagination) (*domain.ListView[
 
 	listView := domain.ListView[TemplateDto]{}
 	for _, t := range templates {
-		listView.List = append(listView.List, TemplateDto{
-			ID:           t.ID,
-			Name:         t.Name,
-			Subject:      t.Subject,
-			TemplateHtml: t.TemplateHtml,
-			TemplateText: t.TemplateText,
-		})
+		listView.List = append(listView.List, NewTemplateDto(&t))
 	}
 
 	return &listView, nil
 }
 
-func (s *TemplateService) Update(id uint, updateTemplate *UpdateTemplateDto) (*TemplateDto, error) {
-	template, err := models.TemplateGet(id)
+func (s *TemplateService) Patch(slug string, updateTemplate *UpdateTemplateDto) (*TemplateDto, error) {
+	template, err := models.TemplateGetBySlug(slug)
 	if err != nil {
 		return nil, err
 	}
@@ -90,9 +86,36 @@ func (s *TemplateService) Update(id uint, updateTemplate *UpdateTemplateDto) (*T
 			return nil, err
 		}
 	}
-	return NewTemplateDto(template), nil
+	view := NewTemplateDto(template)
+	return &view, nil
 }
 
-func (s *TemplateService) Delete(id uint) error {
-	return models.TemplateDelete(id)
+func (s *TemplateService) Update(slug string, updateTemplate *UpdateTemplateDto) (*TemplateDto, error) {
+	template, err := models.TemplateGetBySlug(slug)
+	if err != nil {
+		return nil, err
+	}
+
+	template.Name = *updateTemplate.Name
+	template.Slug = *updateTemplate.Slug
+	template.JsonSchema = *updateTemplate.JsonSchema
+	template.Subject = *updateTemplate.Subject
+	template.TemplateHtml = *updateTemplate.TemplateHtml
+	template.TemplateText = *updateTemplate.TemplateText
+
+	err = template.Update()
+	if err != nil {
+		return nil, err
+	}
+
+	view := NewTemplateDto(template)
+	return &view, nil
+}
+
+func (s *TemplateService) Delete(slug string) error {
+	template, err := models.TemplateGetBySlug(slug)
+	if err != nil {
+		return err
+	}
+	return template.Delete()
 }

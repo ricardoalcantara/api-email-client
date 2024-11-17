@@ -10,6 +10,7 @@ import SmtpList from "@/pages/smtp";
 import SmtpCreate from "@/pages/smtp/new";
 import EmailList from "@/pages/email";
 import ApiKeyList from "@/pages/api-key";
+import TemplateEdit from "@/pages/template/:slug";
 
 const Routers = createBrowserRouter([
   {
@@ -31,8 +32,8 @@ const Routers = createBrowserRouter([
             element: <TemplateCreate />,
           },
           {
-            path: "/template/:id",
-            element: <h1>template id</h1>,
+            path: "/template/:slug",
+            element: <TemplateEdit />,
           },
           {
             path: "/smtp",

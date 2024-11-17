@@ -5,6 +5,7 @@ import {
   LoginDto,
   TemplateDto,
   TokenDto,
+  UpdateTemplateDto,
 } from "./dto";
 
 export const api = createApi({
@@ -40,6 +41,22 @@ export const api = createApi({
         body: template,
       }),
     }),
+    getTemplate: builder.query<TemplateDto, string>({
+      query: (slug) => ({
+        url: `/api/template/${slug}`,
+        method: "GET",
+      }),
+    }),
+    putTemplate: builder.mutation<
+      TemplateDto,
+      { slug: string; template: UpdateTemplateDto }
+    >({
+      query: ({ slug, template }) => ({
+        url: `/api/template/${slug}`,
+        method: "PUT",
+        body: template,
+      }),
+    }),
   }),
 });
 
@@ -47,4 +64,6 @@ export const {
   useLoginMutation,
   useListTemplatesQuery,
   usePostTemplateMutation,
+  useGetTemplateQuery,
+  usePutTemplateMutation,
 } = api;

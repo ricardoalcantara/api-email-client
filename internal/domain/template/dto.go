@@ -30,8 +30,8 @@ type UpdateTemplateDto struct {
 	TemplateText *string `json:"template_text"`
 }
 
-func NewTemplateDto(t *models.Template) *TemplateDto {
-	return &TemplateDto{
+func NewTemplateDto(t *models.Template) TemplateDto {
+	return TemplateDto{
 		ID:           t.ID,
 		Name:         t.Name,
 		Slug:         t.Slug,

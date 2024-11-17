@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -25,16 +25,19 @@ import { PasswordInput } from "@/components/PasswordInput";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useLoginMutation } from "@/services";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { getError } from "@/lib/error";
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
+
+
 export default function Login() {
   const navigate = useNavigate();
   const [errorMsg, setErrorMsg] = useState("");
-  const [login, { isLoading, error }] = useLoginMutation();
+  const [login, { isLoading }] = useLoginMutation();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -44,19 +47,14 @@ export default function Login() {
     },
   });
 
-  useEffect(() => {
-    if (error) {
-      console.log(error);
-    }
-  }, [error]);
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      setErrorMsg("")
       const result = await login(values).unwrap();
       localStorage.setItem("access_token", result.access_token);
       navigate("/");
     } catch (err) {
-      setErrorMsg("Invalid email or password");
+      setErrorMsg(getError(err));
     }
   }
 
