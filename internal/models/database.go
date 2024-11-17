@@ -43,8 +43,6 @@ func ConnectDataBase() {
 
 	migrate()
 	createAdmin()
-	createTemplate()
-	createSmtp()
 }
 
 func migrate() {
@@ -77,33 +75,5 @@ func createAdmin() {
 		}
 
 		user.Save()
-	}
-}
-
-func createTemplate() {
-	if err := db.Take(&Template{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-		t := Template{
-			Name:         "Default",
-			TemplateHtml: "<h1>{{.Name}}</h1>",
-			TemplateText: "{{.Name}}",
-		}
-
-		t.Save()
-	}
-}
-
-func createSmtp() {
-	if err := db.Take(&Smtp{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-		s := Smtp{
-			Name:     "Default",
-			Server:   "localhost",
-			Port:     1025,
-			Email:    "sample@email.com",
-			User:     "sample@email.com",
-			Password: "empty",
-			Default:  false,
-		}
-		s.Base64Password()
-		s.Save()
 	}
 }

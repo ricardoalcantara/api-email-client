@@ -1,29 +1,20 @@
-import React from 'react';
+import React from "react";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus } from "lucide-react";
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from "react-router-dom";
+import { useListTemplatesQuery } from "@/services";
 
 const TemplateList = () => {
-  // Sample data with new structure
-  const [data] = React.useState([
-    { id: 1, name: "John Doe", subject: "Mathematics" },
-    { id: 2, name: "Jane Smith", subject: "Physics" },
-    { id: 3, name: "Bob Johnson", subject: "Chemistry" },
-    { id: 4, name: "Alice Brown", subject: "Biology" },
-    { id: 5, name: "Charlie Wilson", subject: "History" },
-  ]);
-
-  const [currentPage, setCurrentPage] = React.useState(1);
-  const itemsPerPage = 5;
-  const totalPages = Math.ceil(data.length / itemsPerPage);
-
-  const getCurrentPageData = () => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return data.slice(startIndex, endIndex);
-  };
+  const { data: templates, isLoading, isError } = useListTemplatesQuery();
 
   const handleRowClick = (item: any) => {
     // Handle row click for editing
@@ -53,7 +44,7 @@ const TemplateList = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {getCurrentPageData().map((item) => (
+                {templates?.list?.map((item) => (
                   <TableRow
                     key={item.id}
                     onClick={() => handleRowClick(item)}
@@ -69,23 +60,11 @@ const TemplateList = () => {
           </div>
 
           <div className="flex items-center justify-end space-x-2 py-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
+            <Button variant="outline" size="sm" disabled={true}>
               Previous
             </Button>
-            <div className="text-sm">
-              Page {currentPage} of {totalPages}
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-            >
+            <div className="text-sm">Page 1 of 999</div>
+            <Button variant="outline" size="sm" disabled={true}>
               Next
             </Button>
           </div>

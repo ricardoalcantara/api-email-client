@@ -1,4 +1,3 @@
-import React from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -16,6 +15,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { usePostTemplateMutation } from "@/services";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -27,18 +29,24 @@ const formSchema = z.object({
   subject: z.string().min(2, {
     message: "Subject must be at least 2 characters.",
   }),
-  json_schema: z.string().min(2, {
-    message: "JSON Schema is required.",
-  }).refine((val) => {
-    try {
-      JSON.parse(val);
-      return true;
-    } catch {
-      return false;
-    }
-  }, {
-    message: "Invalid JSON Schema format.",
-  }),
+  json_schema: z
+    .string()
+    .min(2, {
+      message: "JSON Schema is required.",
+    })
+    .refine(
+      (val) => {
+        try {
+          JSON.parse(val);
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      {
+        message: "Invalid JSON Schema format.",
+      }
+    ),
   template_html: z.string().min(2, {
     message: "HTML Template is required.",
   }),
@@ -48,23 +56,33 @@ const formSchema = z.object({
 });
 
 const TemplateCreate = () => {
-  // Initialize form with default values
+  const navigate = useNavigate();
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "Welcome Email",
       slug: "welcome-email",
-      json_schema: "{\"type\": \"object\", \"properties\": {\"name\": {\"type\": \"string\"}, \"email\": {\"type\": \"string\"}}}",
+      json_schema:
+        '{"type": "object", "properties": {"name": {"type": "string"}, "email": {"type": "string"}}}',
       subject: "Welcome to Our Service!",
-      template_html: "<html><body><h1>Welcome, {{name}}!</h1><p>We're glad to have you.</p></body></html>",
-      template_text: "Welcome, {{name}}!\nWe're glad to have you."
+      template_html:
+        "<html><body><h1>Welcome, {{name}}!</h1><p>We're glad to have you.</p></body></html>",
+      template_text: "Welcome, {{name}}!\nWe're glad to have you.",
     },
   });
 
-  const onSubmit = async (values) => {
-    console.log(values);
-    // Handle form submission
-  };
+  const [errorMsg, setErrorMsg] = useState("");
+  const [createTemplate, { isLoading, error }] = usePostTemplateMutation();
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const response = await createTemplate(values as any).unwrap();
+      // navigate(`/templates/${response.slug}`);
+      navigate(`/template`);
+    } catch (err) {
+      setErrorMsg("Error");
+    }
+  }
 
   return (
     <div className="p-8">
@@ -83,7 +101,10 @@ const TemplateCreate = () => {
                     <FormItem>
                       <FormLabel>Template Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter template name..." {...field} />
+                        <Input
+                          placeholder="Enter template name..."
+                          {...field}
+                        />
                       </FormControl>
                       <FormDescription>
                         The name of your email template.
@@ -202,7 +223,12 @@ const TemplateCreate = () => {
               </div>
 
               <div className="flex justify-end space-x-4">
-                <Button variant="outline" type="button" onClick={() => form.reset()}>
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={() => form.reset()}
+                  disabled={isLoading}
+                >
                   Reset
                 </Button>
                 <Button type="submit">Create Template</Button>
