@@ -66,7 +66,7 @@ func SmtpList(pagination *Pagination) ([]Smtp, error) {
 	return s, nil
 }
 
-func SmtpGetById(id uint) (*Smtp, error) {
+func SmtpGet(id uint) (*Smtp, error) {
 	var s = Smtp{}
 	err := db.Take(&s, id).Error
 	if err != nil {

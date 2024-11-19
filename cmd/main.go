@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	apikey "github.com/ricardoalcantara/api-email-client/internal/domain/api_key"
 	"github.com/ricardoalcantara/api-email-client/internal/domain/auth"
 	"github.com/ricardoalcantara/api-email-client/internal/domain/email"
 	"github.com/ricardoalcantara/api-email-client/internal/domain/smtp"
@@ -51,6 +52,7 @@ func main() {
 	email.RegisterRoutes(api)
 	smtp.RegisterRoutes(api)
 	template.RegisterRoutes(api)
+	apikey.RegisterRoutes(api)
 
 	host := utils.GetEnv("API_HOST", "")
 	port := utils.GetEnv("API_PORT", "5555")

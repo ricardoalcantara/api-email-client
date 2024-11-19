@@ -51,3 +51,12 @@ export interface EmailView {
   html_body?: string;
   text_body?: string;
 }
+
+export interface ApiKeyDto {
+  id: string;
+  name: string;
+  key: string | undefined;
+  lastUsed: string;
+  ipWhitelist: string[];
+  expiresAt: string;
+}

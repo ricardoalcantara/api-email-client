@@ -10,6 +10,7 @@ import {
   CreateSmtpDto,
   UpdateSmtpDto,
   EmailView,
+  ApiKeyDto,
 } from "./dto";
 
 export const api = createApi({
@@ -104,6 +105,14 @@ export const api = createApi({
         method: "GET",
       }),
     }),
+
+    // ApiKeys
+    listApiKey: builder.query<ListView<ApiKeyDto>, void>({
+      query: () => ({
+        url: "/api/api-key",
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -122,4 +131,7 @@ export const {
   useDeleteSmtpMutation,
   // Email hooks
   useListEmailQuery,
+
+  // ApiKey hooks
+  useListApiKeyQuery,
 } = api;

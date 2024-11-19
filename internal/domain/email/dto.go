@@ -1,6 +1,10 @@
 package email
 
-import "time"
+import (
+	"time"
+
+	"github.com/ricardoalcantara/api-email-client/internal/models"
+)
 
 type SendEmailDto struct {
 	TemplateSlug string `json:"template_slug" binding:"required"`
@@ -19,4 +23,23 @@ type EmailView struct {
 	SentAt   *time.Time `json:"sent_at"`
 	HtmlBody string     `json:"html_body,omitempty"`
 	TextBody string     `json:"text_body,omitempty"`
+}
+
+func NewEmailView(email *models.Email) EmailView {
+	var smtpName string
+	var from string
+	if email.Smtp != nil {
+		smtpName = email.Smtp.Name
+		from = email.Smtp.Email
+	}
+	return EmailView{
+		ID:       email.ID,
+		SmtpName: smtpName,
+		From:     from,
+		To:       email.To,
+		Subject:  email.Subject,
+		SentAt:   email.SentAt,
+		HtmlBody: email.HtmlBody,
+		TextBody: email.TextBody,
+	}
 }

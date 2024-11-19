@@ -58,7 +58,7 @@ func authBearer(c *gin.Context, authToken string, secret string) {
 }
 
 func authApiKey(c *gin.Context, authToken string) {
-	dbApiKey, err := models.GetApiKeyByHash(authToken)
+	dbApiKey, err := models.ApiKeyGetByHash(authToken)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrorResponse{Error: utils.PrintError(err)})
 		return

@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Trash2, Plus, X } from "lucide-react";
 import { format, addMonths } from "date-fns";
+import { ApiKeyDto } from '@/services/dto';
+import { useListApiKeyQuery } from '@/services';
 
 const ApiKeyList = () => {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -17,30 +19,13 @@ const ApiKeyList = () => {
     ipWhitelist: ['']
   });
 
-  // Sample data
-  const [data] = React.useState([
-    {
-      id: 1,
-      name: "Production API Key",
-      lastUsed: "2024-11-16T10:30:00Z",
-      ipWhitelist: ["192.168.1.1", "10.0.0.1", "172.16.0.1"],
-      expiresAt: "2025-12-31T23:59:59Z"
-    },
-    {
-      id: 2,
-      name: "Development API Key",
-      lastUsed: "2024-11-15T15:45:00Z",
-      ipWhitelist: ["192.168.1.2"],
-      expiresAt: "2024-12-31T23:59:59Z"
-    },
-    {
-      id: 3,
-      name: "Testing API Key",
-      lastUsed: "2024-11-14T09:20:00Z",
-      ipWhitelist: [],
-      expiresAt: "2024-11-30T23:59:59Z"
-    }
-  ]);
+  const { data: apiKeys, isLoading, isError } = useListApiKeyQuery(undefined, {
+    refetchOnMountOrArgChange: true
+  });
+
+  const handleRowClick = (item: ApiKeyDto) => {
+    // navigate(`/smtp/${item.slug}`);
+  };
 
   const handleDelete = (id) => {
     console.log("Delete API key:", id);
@@ -175,7 +160,7 @@ const ApiKeyList = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.map((item) => (
+                {apiKeys?.list?.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">#{item.id}</TableCell>
                     <TableCell>{item.name}</TableCell>
