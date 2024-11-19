@@ -11,6 +11,7 @@ import (
 type Smtp struct {
 	gorm.Model
 	Name     string `gorm:"size:255;not null;"`
+	Slug     string `gorm:"size:255;not null;unique"`
 	Server   string `gorm:"size:255;not null;"`
 	Port     uint16 `gorm:"smallint;not null;"`
 	Email    string `gorm:"size:255;not null;"`
@@ -23,8 +24,24 @@ func (s *Smtp) Save() error {
 	return db.Create(&s).Error
 }
 
+func (t *Smtp) Updates(update map[string]interface{}) error {
+	return db.Model(&t).Updates(update).Error
+}
+
+func (t *Smtp) Update() error {
+	return db.Model(&t).Save(&t).Error
+}
+
+func (t *Smtp) Delete() error {
+	return db.Delete(&t).Error
+}
+
 func (s *Smtp) SetBase64Password(password string) {
 	s.Password = base64.StdEncoding.EncodeToString([]byte(password))
+}
+
+func HashBase64Password(password string) string {
+	return base64.StdEncoding.EncodeToString([]byte(password))
 }
 
 func (s *Smtp) GetBase64Password() (string, error) {
@@ -95,6 +112,15 @@ func SmtpDisableDefault() error {
 
 func SmtpDeleteById(id uint) error {
 	return db.Delete(&Smtp{}, id).Error
+}
+
+func SmtpGetBySlug(slug string) (*Smtp, error) {
+	var t = Smtp{}
+	err := db.Take(&t, "slug = ?", slug).Error
+	if err != nil {
+		return nil, err
+	}
+	return &t, nil
 }
 
 func (s *Smtp) GetDialer() (*gomail.Dialer, error) {

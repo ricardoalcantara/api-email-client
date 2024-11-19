@@ -4,33 +4,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Plus } from "lucide-react";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useListSmtpQuery } from '@/services';
+import { SmtpDto } from '@/services/dto';
 
 const SmtpList = () => {
-  // Sample data
-  const [data] = React.useState([
-    {
-      id: 1,
-      name: "Primary SMTP",
-      server: "smtp.example.com",
-      port: 587,
-      email: "noreply@example.com",
-      user: "noreply_user",
-      default: true
-    },
-    {
-      id: 2,
-      name: "Secondary SMTP",
-      server: "smtp.secondary.com",
-      port: 587,
-      email: "secondary@example.com",
-      user: "secondary_user",
-      default: false
-    }
-  ]);
+  const navigate = useNavigate();
+  const { data: smtps, isLoading, isError } = useListSmtpQuery(undefined, {
+    refetchOnMountOrArgChange: true
+  });
 
-  const handleRowClick = (item: any) => {
-    console.log("Edit SMTP:", item);
+  const handleRowClick = (item: SmtpDto) => {
+    navigate(`/smtp/${item.slug}`);
   };
 
   return (
@@ -59,7 +44,7 @@ const SmtpList = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.map((item) => (
+                {smtps?.list?.map((item) => (
                   <TableRow
                     key={item.id}
                     onClick={() => handleRowClick(item)}

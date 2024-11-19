@@ -20,12 +20,12 @@ func (t *Template) Updates(update map[string]interface{}) error {
 	return db.Model(&t).Updates(update).Error
 }
 
-func (t *Template) Delete() error {
-	return db.Delete(&t).Error
-}
-
 func (t *Template) Update() error {
 	return db.Model(&t).Save(&t).Error
+}
+
+func (t *Template) Delete() error {
+	return db.Delete(&t).Error
 }
 
 func TemplateGet(id uint) (*Template, error) {

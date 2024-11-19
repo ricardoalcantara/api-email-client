@@ -6,6 +6,10 @@ import {
   TemplateDto,
   TokenDto,
   UpdateTemplateDto,
+  SmtpDto,
+  CreateSmtpDto,
+  UpdateSmtpDto,
+  EmailView,
 } from "./dto";
 
 export const api = createApi({
@@ -28,7 +32,8 @@ export const api = createApi({
       }),
     }),
 
-    listTemplates: builder.query<ListView<TemplateDto>, void>({
+    // Templates endpoints
+    listTemplate: builder.query<ListView<TemplateDto>, void>({
       query: () => ({
         url: "/api/template",
         method: "GET",
@@ -57,13 +62,64 @@ export const api = createApi({
         body: template,
       }),
     }),
+
+    // SMTP endpoints
+    listSmtp: builder.query<ListView<SmtpDto>, void>({
+      query: () => ({
+        url: "/api/smtp",
+        method: "GET",
+      }),
+    }),
+    postSmtp: builder.mutation<SmtpDto, CreateSmtpDto>({
+      query: (smtp) => ({
+        url: "/api/smtp",
+        method: "POST",
+        body: smtp,
+      }),
+    }),
+    getSmtp: builder.query<SmtpDto, string>({
+      query: (slug) => ({
+        url: `/api/smtp/${slug}`,
+        method: "GET",
+      }),
+    }),
+    putSmtp: builder.mutation<SmtpDto, { slug: string; smtp: UpdateSmtpDto }>({
+      query: ({ slug, smtp }) => ({
+        url: `/api/smtp/${slug}`,
+        method: "PUT",
+        body: smtp,
+      }),
+    }),
+    deleteSmtp: builder.mutation<void, string>({
+      query: (slug) => ({
+        url: `/api/smtp/${slug}`,
+        method: "DELETE",
+      }),
+    }),
+
+    // Email endpoints
+    listEmail: builder.query<ListView<EmailView>, void>({
+      query: () => ({
+        url: "/api/email",
+        method: "GET",
+      }),
+    }),
   }),
 });
 
 export const {
   useLoginMutation,
-  useListTemplatesQuery,
+  // Templates hooks
+  useListTemplateQuery,
   usePostTemplateMutation,
   useGetTemplateQuery,
   usePutTemplateMutation,
+  // SMTP hooks
+  useListSmtpQuery,
+  usePostSmtpMutation,
+  useGetSmtpQuery,
+  usePutSmtpMutation,
+  useDeleteSmtpMutation,
+  // Email hooks
+  useListEmailQuery,
 } = api;

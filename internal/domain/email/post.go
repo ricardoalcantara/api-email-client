@@ -10,7 +10,7 @@ import (
 )
 
 func post(c *gin.Context) {
-	var input SendEmailInput
+	var input SendEmailDto
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": utils.PrintError(err)})
@@ -19,21 +19,21 @@ func post(c *gin.Context) {
 
 	var smtp *models.Smtp
 	var err error
-	if input.SmtpId == 0 {
+	if len(input.SmtpSlug) == 0 {
 		smtp, err = models.SmtpGetDefault()
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": utils.PrintError(err)})
 			return
 		}
 	} else {
-		smtp, err = models.SmtpGetById(input.SmtpId)
+		smtp, err = models.SmtpGetBySlug(input.SmtpSlug)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": utils.PrintError(err)})
 			return
 		}
 	}
 
-	t, err := models.TemplateGet(input.TemplateId)
+	t, err := models.TemplateGetBySlug(input.TemplateSlug)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": utils.PrintError(err)})
 		return
@@ -64,8 +64,6 @@ func post(c *gin.Context) {
 
 	email.Smtp = smtp
 
-	// dialer, err := smtp.GetDialer()
-	// *smtp, input.To, subject, html, text)
 	if err = emailengine.SendEmailQueue(email); err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": utils.PrintErrorAnd(err, "Fail sending email")})
 		return

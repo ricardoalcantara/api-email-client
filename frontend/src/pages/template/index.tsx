@@ -11,12 +11,14 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { useListTemplatesQuery } from "@/services";
+import { useListTemplateQuery } from "@/services";
 import { TemplateDto } from "@/services/dto";
 
 const TemplateList = () => {
   const navigate = useNavigate();
-  const { data: templates, isLoading, isError } = useListTemplatesQuery();
+  const { data: templates, isLoading, isError } = useListTemplateQuery(undefined, {
+    refetchOnMountOrArgChange: true
+  });
 
   const handleRowClick = (item: TemplateDto) => {
     navigate(`/template/${item.slug}`);

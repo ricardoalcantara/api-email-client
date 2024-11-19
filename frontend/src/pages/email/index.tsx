@@ -3,40 +3,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { ChevronRight } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
+import { useListEmailQuery } from '@/services';
 
 const EmailList = () => {
-  // Sample data
-  const [data] = React.useState([
-    {
-      id: 1,
-      smtpName: "Primary SMTP",
-      from: "noreply@example.com",
-      to: "user1@example.com",
-      subject: "Welcome to Our Service!",
-      sentAt: "2024-11-16T10:30:00Z"
-    },
-    {
-      id: 2,
-      smtpName: "Primary SMTP",
-      from: "noreply@example.com",
-      to: "user2@example.com",
-      subject: "Your Monthly Report",
-      sentAt: "2024-11-16T10:28:00Z"
-    },
-    {
-      id: 3,
-      smtpName: "Secondary SMTP",
-      from: "support@example.com",
-      to: "user3@example.com",
-      subject: "Password Reset Request",
-      sentAt: "2024-11-16T10:25:00Z"
-    }
-  ]);
-
-  const handleRowClick = (item: any) => {
-    // Navigate to detail view
-    console.log("Navigate to email details:", item);
-  };
+  const navigate = useNavigate();
+  const { data: smtps, isLoading, isError } = useListEmailQuery(undefined, {
+    refetchOnMountOrArgChange: true
+  });
 
   return (
     <div className="p-8">
@@ -59,21 +33,17 @@ const EmailList = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.map((item) => (
-                  <TableRow
-                    key={item.id}
-                    onClick={() => handleRowClick(item)}
-                    className="cursor-pointer group hover:bg-muted/50 transition-colors"
-                  >
+                {smtps?.list?.map((item) => (
+                  <TableRow key={item.id} className="cursor-pointer group hover:bg-muted/50 transition-colors"                  >
                     <TableCell className="font-medium">#{item.id}</TableCell>
-                    <TableCell>{item.smtpName}</TableCell>
+                    <TableCell>{item.smtp_name}</TableCell>
                     <TableCell className="font-mono text-sm">{item.from}</TableCell>
                     <TableCell className="font-mono text-sm">{item.to}</TableCell>
                     <TableCell className="max-w-[300px] truncate">
                       {item.subject}
                     </TableCell>
                     <TableCell className="text-right text-muted-foreground">
-                      {format(new Date(item.sentAt), "MMM d, yyyy HH:mm:ss")}
+                      {item.sent_at && format(new Date(item.sent_at), "MMM d, yyyy HH:mm:ss")}
                     </TableCell>
                     <TableCell>
                       <ChevronRight

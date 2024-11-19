@@ -1,12 +1,12 @@
 import * as z from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useGetTemplateQuery, usePostTemplateMutation, usePutTemplateMutation } from "@/services";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getError } from "@/lib/error";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import TemplateForm, { formSchema } from "../form";
+import TemplateForm, { formSchema } from "../components/form";
 import { useParams } from 'react-router-dom';
 
 const TemplateEdit = () => {

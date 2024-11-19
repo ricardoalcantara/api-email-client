@@ -2,12 +2,12 @@ package email
 
 import "time"
 
-type SendEmailInput struct {
-	TemplateId uint   `json:"template_id"`
-	SmtpId     uint   `json:"smtp_id"`
-	To         string `json:"to" binding:"required"`
-	Subject    string `json:"subject"`
-	Data       any    `json:"data" binding:"required"`
+type SendEmailDto struct {
+	TemplateSlug string `json:"template_slug" binding:"required"`
+	SmtpSlug     string `json:"smtp_slug" binding:"required"`
+	To           string `json:"to" binding:"required"`
+	Subject      string `json:"subject"`
+	Data         any    `json:"data"`
 }
 
 type EmailView struct {
