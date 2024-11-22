@@ -14,12 +14,15 @@ const TemplateCreate = () => {
   const [errorMsg, setErrorMsg] = useState("");
   const [createTemplate, { isLoading }] = usePostTemplateMutation();
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>, generated: boolean) {
     try {
       setErrorMsg("")
       const response = await createTemplate(values as any).unwrap();
-      // navigate(`/templates/${response.slug}`);
-      navigate(`/template`);
+      if (generated) {
+        navigate(`/template/${response.slug}/generator`);
+      } else {
+        navigate(`/template`);
+      }
     } catch (err) {
       setErrorMsg(getError(err));
     }

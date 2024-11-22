@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	apikey "github.com/ricardoalcantara/api-email-client/internal/domain/api_key"
 	"github.com/ricardoalcantara/api-email-client/internal/domain/auth"
 	"github.com/ricardoalcantara/api-email-client/internal/domain/email"
@@ -14,7 +15,6 @@ import (
 	"github.com/ricardoalcantara/api-email-client/internal/domain/template"
 	"github.com/ricardoalcantara/api-email-client/internal/emailengine"
 	"github.com/ricardoalcantara/api-email-client/internal/models"
-	"github.com/ricardoalcantara/api-email-client/internal/setup"
 	"github.com/ricardoalcantara/api-email-client/internal/utils"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -30,7 +30,10 @@ func init() {
 		Logger().
 		Output(zerolog.ConsoleWriter{Out: os.Stderr})
 
-	setup.Env()
+	err := godotenv.Load()
+	if err != nil {
+		log.Debug().Msg("Fail loading .env file")
+	}
 	models.ConnectDataBase()
 	emailengine.Create()
 }

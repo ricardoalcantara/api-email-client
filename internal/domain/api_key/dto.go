@@ -4,25 +4,11 @@ import (
 	"time"
 
 	"github.com/ricardoalcantara/api-email-client/internal/models"
+	"github.com/ricardoalcantara/api-email-client/pkg/types"
 )
 
-type CreateApiKeyDto struct {
-	Name        string `json:"name" binding:"required"`
-	IpWhitelist string `json:"ip_whitelist"`
-	ExpiresAt   string `json:"expires_at"`
-}
-
-type ApiKeyDto struct {
-	Id          uint       `json:"id"`
-	Name        string     `json:"name"`
-	Key         string     `json:"key,omitempty"`
-	LastUsed    *time.Time `json:"last_used"`
-	IpWhitelist string     `json:"ip_whitelist"`
-	ExpiresAt   string     `json:"expires_at"`
-}
-
-func NewApiKeyDto(a *models.ApiKey) ApiKeyDto {
-	dtp := ApiKeyDto{
+func NewApiKeyDto(a *models.ApiKey) types.ApiKeyDto {
+	dtp := types.ApiKeyDto{
 		Id:          a.ID,
 		Name:        a.Name,
 		LastUsed:    a.LastUsed,

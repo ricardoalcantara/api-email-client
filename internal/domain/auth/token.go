@@ -4,11 +4,12 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/ricardoalcantara/api-email-client/pkg/types"
 )
 
 func (controller *AuthController) token(c *gin.Context) {
 
-	var input TokenInput
+	var input types.TokenInput
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -21,7 +22,7 @@ func (controller *AuthController) token(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, TokenOutput{
+	c.JSON(200, types.TokenOutput{
 		AccessToken: access_token,
 	})
 }

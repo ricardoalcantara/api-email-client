@@ -15,6 +15,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TemplateDto } from "@/services/dto";
+import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Switch } from "@/components/ui/switch";
 
 export const formSchema = z.object({
   name: z.string().min(2, {
@@ -44,21 +47,19 @@ export const formSchema = z.object({
         message: "Invalid JSON Schema format.",
       }
     ),
-  template_html: z.string().min(2, {
-    message: "HTML Template is required.",
-  }),
-  template_text: z.string().min(2, {
-    message: "Text Template is required.",
-  }),
+  template_html: z.string().default(""),
+  template_text: z.string().default(""),
 });
 
 export interface TemplateFormProps {
-  onSubmit: (values: z.infer<typeof formSchema>) => void;
+  onSubmit: (values: z.infer<typeof formSchema>, generated: boolean) => void;
   isLoading: boolean;
   defaultValues?: TemplateDto;
+  slug?: string
 }
 
-const TemplateForm = ({ onSubmit, isLoading, defaultValues }: TemplateFormProps) => {
+const TemplateForm = ({ onSubmit, isLoading, defaultValues, slug }: TemplateFormProps) => {
+  const [generated, setGenerated] = useState(false)
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues ?? {
@@ -73,7 +74,7 @@ const TemplateForm = ({ onSubmit, isLoading, defaultValues }: TemplateFormProps)
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit((value) => onSubmit(value, generated))} className="space-y-6">
         <div className="grid gap-6 md:grid-cols-2">
           <FormField
             control={form.control}
@@ -152,55 +153,80 @@ const TemplateForm = ({ onSubmit, isLoading, defaultValues }: TemplateFormProps)
         />
 
         <div className="space-y-4">
-          <FormLabel>Template Content</FormLabel>
-          <Tabs defaultValue="html" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="html">HTML Template</TabsTrigger>
-              <TabsTrigger value="text">Text Template</TabsTrigger>
-            </TabsList>
-            <TabsContent value="html" className="mt-4">
-              <FormField
-                control={form.control}
-                name="template_html"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Enter HTML template..."
-                        className="font-mono min-h-[300px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      The HTML version of your email template.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </TabsContent>
-            <TabsContent value="text" className="mt-4">
-              <FormField
-                control={form.control}
-                name="template_text"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Enter text template..."
-                        className="min-h-[300px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      The plain text version of your email template.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </TabsContent>
-          </Tabs>
+          <FormLabel className="flex gap-2 items-center">
+            <span>
+              Template Content -
+            </span>
+            {slug ? (
+
+              <Button asChild variant='outline'>
+                <Link to={`/template/${slug}/generate`}>
+                  Regenerate
+                </Link>
+              </Button>
+            ) : (
+              <FormItem className="flex items-center gap-2">
+                <FormLabel style={{ marginTop: 0 }}>Raw</FormLabel>
+                <FormControl>
+                  <Switch
+                    checked={generated}
+                    onCheckedChange={setGenerated}
+                  />
+                </FormControl>
+                <FormLabel style={{ marginTop: 0 }}>Generated</FormLabel>
+              </FormItem>
+            )}
+          </FormLabel>
+          {!generated && (
+            <Tabs defaultValue="html" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="html">HTML Template</TabsTrigger>
+                <TabsTrigger value="text">Text Template</TabsTrigger>
+              </TabsList>
+              <TabsContent value="html" className="mt-4">
+                <FormField
+                  control={form.control}
+                  name="template_html"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter HTML template..."
+                          className="font-mono min-h-[300px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        The HTML version of your email template.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </TabsContent>
+              <TabsContent value="text" className="mt-4">
+                <FormField
+                  control={form.control}
+                  name="template_text"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter text template..."
+                          className="min-h-[300px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        The plain text version of your email template.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </TabsContent>
+            </Tabs>
+          )}
         </div>
 
         <div className="flex justify-end space-x-4">

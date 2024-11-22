@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ricardoalcantara/api-email-client/internal/domain"
 	"github.com/ricardoalcantara/api-email-client/internal/models"
 	"github.com/ricardoalcantara/api-email-client/internal/token"
 	"github.com/ricardoalcantara/api-email-client/internal/utils"
+	"github.com/ricardoalcantara/api-email-client/pkg/types"
 )
 
 func AuthMiddleware() gin.HandlerFunc {
@@ -20,7 +20,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		tokenType, authToken := getToken(c)
 
 		if len(authToken) == 0 {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrorResponse{Error: "Not authorized"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, types.ErrorResponse{Error: "Not authorized"})
 			return
 		}
 
@@ -30,7 +30,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		case "Bearer":
 			authBearer(c, authToken, secret)
 		default:
-			c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrorResponse{Error: "Not authorized"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, types.ErrorResponse{Error: "Not authorized"})
 		}
 	}
 }
@@ -38,18 +38,18 @@ func AuthMiddleware() gin.HandlerFunc {
 func authBearer(c *gin.Context, authToken string, secret string) {
 	authorized, err := token.IsAuthorized(authToken, secret)
 	if !authorized {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrorResponse{Error: utils.PrintError(err)})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, types.ErrorResponse{Error: utils.PrintError(err)})
 		return
 	}
 
 	accessToken, err := token.ExtractToken(authToken, secret)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrorResponse{Error: utils.PrintError(err)})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, types.ErrorResponse{Error: utils.PrintError(err)})
 		return
 	}
 	claims, err := token.ExtractClaims(accessToken)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrorResponse{Error: utils.PrintError(err)})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, types.ErrorResponse{Error: utils.PrintError(err)})
 		return
 	}
 
@@ -60,11 +60,11 @@ func authBearer(c *gin.Context, authToken string, secret string) {
 func authApiKey(c *gin.Context, authToken string) {
 	dbApiKey, err := models.ApiKeyGetByHash(authToken)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrorResponse{Error: utils.PrintError(err)})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, types.ErrorResponse{Error: utils.PrintError(err)})
 		return
 	}
 	if dbApiKey.ExpiresAt != nil && dbApiKey.ExpiresAt.Before(time.Now()) {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrorResponse{Error: "Expired"})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, types.ErrorResponse{Error: "Expired"})
 		return
 	}
 

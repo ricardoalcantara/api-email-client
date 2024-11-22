@@ -5,10 +5,10 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ricardoalcantara/api-email-client/internal/domain"
 	"github.com/ricardoalcantara/api-email-client/internal/middlewares"
 	"github.com/ricardoalcantara/api-email-client/internal/models"
 	"github.com/ricardoalcantara/api-email-client/internal/utils"
+	"github.com/ricardoalcantara/api-email-client/pkg/types"
 )
 
 type EmailController struct {
@@ -22,7 +22,7 @@ func NewEmailController() *EmailController {
 }
 
 func (controller *EmailController) post(c *gin.Context) {
-	var input SendEmailDto
+	var input types.SendEmailDto
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -52,13 +52,13 @@ func (controller *EmailController) get(c *gin.Context) {
 
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, domain.ErrorResponse{Error: utils.PrintError(err)})
+		c.AbortWithStatusJSON(http.StatusBadRequest, types.ErrorResponse{Error: utils.PrintError(err)})
 		return
 	}
 
 	view, err := controller.service.get(uint(id))
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, domain.ErrorResponse{Error: utils.PrintError(err)})
+		c.AbortWithStatusJSON(http.StatusBadRequest, types.ErrorResponse{Error: utils.PrintError(err)})
 		return
 	}
 

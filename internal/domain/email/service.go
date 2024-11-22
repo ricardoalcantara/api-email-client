@@ -1,9 +1,9 @@
 package email
 
 import (
-	"github.com/ricardoalcantara/api-email-client/internal/domain"
 	"github.com/ricardoalcantara/api-email-client/internal/emailengine"
 	"github.com/ricardoalcantara/api-email-client/internal/models"
+	"github.com/ricardoalcantara/api-email-client/pkg/types"
 )
 
 type EmailService struct {
@@ -13,7 +13,7 @@ func NewEmailService() *EmailService {
 	return &EmailService{}
 }
 
-func (s *EmailService) post(input SendEmailDto) error {
+func (s *EmailService) post(input types.SendEmailDto) error {
 	var smtp *models.Smtp
 	var err error
 	if len(input.SmtpSlug) == 0 {
@@ -66,28 +66,28 @@ func (s *EmailService) post(input SendEmailDto) error {
 	return nil
 }
 
-func (s *EmailService) list(pagination *models.Pagination) (*domain.ListView[EmailView], error) {
+func (s *EmailService) list(pagination *models.Pagination) (*types.ListView[types.EmailDto], error) {
 	emails, err := models.EmailList(pagination)
 	if err != nil {
 		return nil, err
 	}
 
-	result := domain.ListView[EmailView]{Page: pagination.Page}
+	result := types.ListView[types.EmailDto]{Page: pagination.Page}
 
 	for _, e := range emails {
-		result.List = append(result.List, NewEmailView(&e))
+		result.List = append(result.List, NewEmailDto(&e))
 	}
 
 	return &result, nil
 }
 
-func (s *EmailService) get(id uint) (*EmailView, error) {
+func (s *EmailService) get(id uint) (*types.EmailDto, error) {
 	email, err := models.EmailGet(uint(id))
 	if err != nil {
 		return nil, err
 	}
 
-	emailView := NewEmailView(email)
+	emailView := NewEmailDto(email)
 
 	return &emailView, nil
 }

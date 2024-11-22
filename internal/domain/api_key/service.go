@@ -3,8 +3,8 @@ package apikey
 import (
 	"time"
 
-	"github.com/ricardoalcantara/api-email-client/internal/domain"
 	"github.com/ricardoalcantara/api-email-client/internal/models"
+	"github.com/ricardoalcantara/api-email-client/pkg/types"
 )
 
 type ApiKeyService struct {
@@ -14,7 +14,7 @@ func NewApiKeyService() *ApiKeyService {
 	return &ApiKeyService{}
 }
 
-func (s *ApiKeyService) post(userId uint, input CreateApiKeyDto) (*ApiKeyDto, error) {
+func (s *ApiKeyService) post(userId uint, input types.CreateApiKeyDto) (*types.ApiKeyDto, error) {
 
 	apiKey, fullKey, err := models.GenerateApiKey()
 	if err != nil {
@@ -41,13 +41,13 @@ func (s *ApiKeyService) post(userId uint, input CreateApiKeyDto) (*ApiKeyDto, er
 
 	return &view, nil
 }
-func (s *ApiKeyService) list(userId uint, pagination *models.Pagination) (*domain.ListView[ApiKeyDto], error) {
+func (s *ApiKeyService) list(userId uint, pagination *models.Pagination) (*types.ListView[types.ApiKeyDto], error) {
 	apiKeys, err := models.ApiKeyList(userId, pagination)
 	if err != nil {
 		return nil, err
 	}
 
-	listView := domain.ListView[ApiKeyDto]{
+	listView := types.ListView[types.ApiKeyDto]{
 		Page: pagination.Page,
 	}
 
@@ -58,7 +58,7 @@ func (s *ApiKeyService) list(userId uint, pagination *models.Pagination) (*domai
 	return &listView, nil
 }
 
-func (s *ApiKeyService) get(userId, id uint) (*ApiKeyDto, error) {
+func (s *ApiKeyService) get(userId, id uint) (*types.ApiKeyDto, error) {
 	apiKey, err := models.ApiKeyGet(userId, id)
 	if err != nil {
 		return nil, err

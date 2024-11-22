@@ -1,54 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Trash2, Plus, AlertCircle } from "lucide-react";
-import { format, addDays } from "date-fns";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Plus } from "lucide-react";
 import { usePostApiKeyMutation } from '@/services';
 import { getError } from '@/lib/error';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import AlertError from '@/components/alert-error';
-import FormApiKey from './form-api-key';
+import FormApiKey, { formSchema } from './form-api-key';
 import { ApiKeyDto } from '@/services/dto';
 import ApiKeyResultView from './api-key-result-view';
-
-const EXPIRATION_OPTIONS = {
-  '30_DAYS': '30 Days',
-  '60_DAYS': '60 Days',
-  '90_DAYS': '90 Days',
-  'CUSTOM': 'Custom',
-  'NO_EXPIRE': 'No Expiration'
-} as const;
-
-const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  expirationType: z.enum(['30_DAYS', '60_DAYS', '90_DAYS', 'CUSTOM', 'NO_EXPIRE']),
-  expires_at: z.string().optional(),
-  ip_whitelist: z.string().default(""),
-})
+import * as z from "zod"
 
 export interface DialogAddApiKeysProps {
   open: boolean;

@@ -4,12 +4,13 @@ import (
 	"github.com/google/uuid"
 	"github.com/ricardoalcantara/api-email-client/internal/models"
 	"github.com/ricardoalcantara/api-email-client/internal/token"
+	"github.com/ricardoalcantara/api-email-client/pkg/types"
 )
 
 type AuthService struct {
 }
 
-func (s *AuthService) Token(input TokenInput) (string, error) {
+func (s *AuthService) Token(input types.TokenInput) (string, error) {
 
 	client, err := models.GetUserByEmail(input.Email)
 	if err != nil {

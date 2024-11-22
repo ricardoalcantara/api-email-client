@@ -1,8 +1,8 @@
 package smtp
 
 import (
-	"github.com/ricardoalcantara/api-email-client/internal/domain"
 	"github.com/ricardoalcantara/api-email-client/internal/models"
+	"github.com/ricardoalcantara/api-email-client/pkg/types"
 )
 
 type SmtpService struct {
@@ -12,7 +12,7 @@ func NewSmtpService() *SmtpService {
 	return &SmtpService{}
 }
 
-func (s *SmtpService) Create(smtpDto *CreateSmtpDto) (*SmtpDto, error) {
+func (s *SmtpService) Create(smtpDto *types.CreateSmtpDto) (*types.SmtpDto, error) {
 	smtp := models.Smtp{
 		Name:     smtpDto.Name,
 		Slug:     smtpDto.Slug,
@@ -32,7 +32,7 @@ func (s *SmtpService) Create(smtpDto *CreateSmtpDto) (*SmtpDto, error) {
 	return &view, nil
 }
 
-func (s *SmtpService) Get(slug string) (*SmtpDto, error) {
+func (s *SmtpService) Get(slug string) (*types.SmtpDto, error) {
 	smtp, err := models.SmtpGetBySlug(slug)
 	if err != nil {
 		return nil, err
@@ -42,13 +42,13 @@ func (s *SmtpService) Get(slug string) (*SmtpDto, error) {
 	return &view, nil
 }
 
-func (s *SmtpService) List(pagination *models.Pagination) (*domain.ListView[SmtpDto], error) {
+func (s *SmtpService) List(pagination *models.Pagination) (*types.ListView[types.SmtpDto], error) {
 	smtps, err := models.SmtpList(pagination)
 	if err != nil {
 		return nil, err
 	}
 
-	listView := domain.ListView[SmtpDto]{}
+	listView := types.ListView[types.SmtpDto]{}
 	for _, t := range smtps {
 		listView.List = append(listView.List, NewSmtpDto(&t))
 	}
@@ -56,7 +56,7 @@ func (s *SmtpService) List(pagination *models.Pagination) (*domain.ListView[Smtp
 	return &listView, nil
 }
 
-func (s *SmtpService) Patch(slug string, updateSmtp *UpdateSmtpDto) (*SmtpDto, error) {
+func (s *SmtpService) Patch(slug string, updateSmtp *types.UpdateSmtpDto) (*types.SmtpDto, error) {
 	smtp, err := models.SmtpGetBySlug(slug)
 	if err != nil {
 		return nil, err
@@ -98,7 +98,7 @@ func (s *SmtpService) Patch(slug string, updateSmtp *UpdateSmtpDto) (*SmtpDto, e
 	return &view, nil
 }
 
-func (s *SmtpService) Update(slug string, updateSmtp *UpdateSmtpDto) (*SmtpDto, error) {
+func (s *SmtpService) Update(slug string, updateSmtp *types.UpdateSmtpDto) (*types.SmtpDto, error) {
 	smtp, err := models.SmtpGetBySlug(slug)
 	if err != nil {
 		return nil, err

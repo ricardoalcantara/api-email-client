@@ -1,8 +1,8 @@
 package template
 
 import (
-	"github.com/ricardoalcantara/api-email-client/internal/domain"
 	"github.com/ricardoalcantara/api-email-client/internal/models"
+	"github.com/ricardoalcantara/api-email-client/pkg/types"
 )
 
 type TemplateService struct {
@@ -12,7 +12,7 @@ func NewTemplateService() *TemplateService {
 	return &TemplateService{}
 }
 
-func (s *TemplateService) Create(templateDto *CreateTemplateDto) (*TemplateDto, error) {
+func (s *TemplateService) Create(templateDto *types.CreateTemplateDto) (*types.TemplateDto, error) {
 	template := models.Template{
 		Name:         templateDto.Name,
 		Slug:         templateDto.Slug,
@@ -30,7 +30,7 @@ func (s *TemplateService) Create(templateDto *CreateTemplateDto) (*TemplateDto, 
 	return &view, nil
 }
 
-func (s *TemplateService) Get(slug string) (*TemplateDto, error) {
+func (s *TemplateService) Get(slug string) (*types.TemplateDto, error) {
 	template, err := models.TemplateGetBySlug(slug)
 	if err != nil {
 		return nil, err
@@ -40,13 +40,13 @@ func (s *TemplateService) Get(slug string) (*TemplateDto, error) {
 	return &view, nil
 }
 
-func (s *TemplateService) List(pagination *models.Pagination) (*domain.ListView[TemplateDto], error) {
+func (s *TemplateService) List(pagination *models.Pagination) (*types.ListView[types.TemplateDto], error) {
 	templates, err := models.TemplateList(pagination)
 	if err != nil {
 		return nil, err
 	}
 
-	listView := domain.ListView[TemplateDto]{}
+	listView := types.ListView[types.TemplateDto]{}
 	for _, t := range templates {
 		listView.List = append(listView.List, NewTemplateDto(&t))
 	}
@@ -54,7 +54,7 @@ func (s *TemplateService) List(pagination *models.Pagination) (*domain.ListView[
 	return &listView, nil
 }
 
-func (s *TemplateService) Patch(slug string, updateTemplate *UpdateTemplateDto) (*TemplateDto, error) {
+func (s *TemplateService) Patch(slug string, updateTemplate *types.UpdateTemplateDto) (*types.TemplateDto, error) {
 	template, err := models.TemplateGetBySlug(slug)
 	if err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ func (s *TemplateService) Patch(slug string, updateTemplate *UpdateTemplateDto) 
 	return &view, nil
 }
 
-func (s *TemplateService) Update(slug string, updateTemplate *UpdateTemplateDto) (*TemplateDto, error) {
+func (s *TemplateService) Update(slug string, updateTemplate *types.UpdateTemplateDto) (*types.TemplateDto, error) {
 	template, err := models.TemplateGetBySlug(slug)
 	if err != nil {
 		return nil, err

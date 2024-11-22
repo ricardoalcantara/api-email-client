@@ -5,9 +5,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/ricardoalcantara/api-email-client/internal/domain"
 	"github.com/ricardoalcantara/api-email-client/internal/middlewares"
 	"github.com/ricardoalcantara/api-email-client/internal/models"
+	"github.com/ricardoalcantara/api-email-client/pkg/types"
 	"github.com/rs/zerolog/log"
 )
 
@@ -28,7 +28,7 @@ func (controller *TemplateController) list(c *gin.Context) {
 	if err != nil {
 		errId := uuid.New()
 		log.Error().Str("error_id", errId.String()).Err(err).Msg("Error")
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Error: "Internal Server Error: " + errId.String()})
+		c.JSON(http.StatusInternalServerError, types.ErrorResponse{Error: "Internal Server Error: " + errId.String()})
 		return
 	}
 
@@ -36,17 +36,17 @@ func (controller *TemplateController) list(c *gin.Context) {
 }
 
 func (controller *TemplateController) post(c *gin.Context) {
-	var input CreateTemplateDto
+	var input types.CreateTemplateDto
 	if err := c.ShouldBindJSON(&input); err != nil {
 		log.Debug().Err(err).Msg("Error")
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Error: err.Error()})
+		c.JSON(http.StatusInternalServerError, types.ErrorResponse{Error: err.Error()})
 		return
 	}
 
 	templateDto, err := controller.service.Create(&input)
 	if err != nil {
 		log.Debug().Err(err).Msg("Error")
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Error: err.Error()})
+		c.JSON(http.StatusBadRequest, types.ErrorResponse{Error: err.Error()})
 		return
 	}
 
@@ -56,15 +56,15 @@ func (controller *TemplateController) post(c *gin.Context) {
 func (controller *TemplateController) patch(c *gin.Context) {
 	slug := c.Param("slug")
 	if slug == "" {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Error: "id/slug is required"})
+		c.JSON(http.StatusBadRequest, types.ErrorResponse{Error: "id/slug is required"})
 		return
 	}
 
-	var input UpdateTemplateDto
+	var input types.UpdateTemplateDto
 	if err := c.ShouldBindJSON(&input); err != nil {
 		errId := uuid.New()
 		log.Error().Str("error_id", errId.String()).Err(err).Msg("Error")
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Error: "Internal Server Error: " + errId.String()})
+		c.JSON(http.StatusInternalServerError, types.ErrorResponse{Error: "Internal Server Error: " + errId.String()})
 		return
 	}
 
@@ -72,7 +72,7 @@ func (controller *TemplateController) patch(c *gin.Context) {
 	if err != nil {
 		errId := uuid.New()
 		log.Error().Str("error_id", errId.String()).Err(err).Msg("Error")
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Error: "Internal Server Error: " + errId.String()})
+		c.JSON(http.StatusInternalServerError, types.ErrorResponse{Error: "Internal Server Error: " + errId.String()})
 		return
 	}
 
@@ -82,21 +82,21 @@ func (controller *TemplateController) patch(c *gin.Context) {
 func (controller *TemplateController) put(c *gin.Context) {
 	slug := c.Param("slug")
 	if slug == "" {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Error: "id/slug is required"})
+		c.JSON(http.StatusBadRequest, types.ErrorResponse{Error: "id/slug is required"})
 		return
 	}
 
-	var input UpdateTemplateDto
+	var input types.UpdateTemplateDto
 	if err := c.ShouldBindJSON(&input); err != nil {
 		log.Debug().Err(err).Msg("Error")
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Error: err.Error()})
+		c.JSON(http.StatusInternalServerError, types.ErrorResponse{Error: err.Error()})
 		return
 	}
 
 	templateDto, err := controller.service.Update(slug, &input)
 	if err != nil {
 		log.Debug().Err(err).Msg("Error")
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Error: err.Error()})
+		c.JSON(http.StatusBadRequest, types.ErrorResponse{Error: err.Error()})
 		return
 	}
 
@@ -106,20 +106,20 @@ func (controller *TemplateController) put(c *gin.Context) {
 func (controller *TemplateController) get(c *gin.Context) {
 	slug := c.Param("slug")
 	if slug == "" {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Error: "id/slug is required"})
+		c.JSON(http.StatusBadRequest, types.ErrorResponse{Error: "id/slug is required"})
 		return
 	}
 
 	template, err := controller.service.Get(slug)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Error: err.Error()})
+		c.JSON(http.StatusBadRequest, types.ErrorResponse{Error: err.Error()})
 		return
 	}
 
 	if err != nil {
 		errId := uuid.New()
 		log.Error().Str("error_id", errId.String()).Err(err).Msg("Error")
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Error: "Internal Server Error: " + errId.String()})
+		c.JSON(http.StatusInternalServerError, types.ErrorResponse{Error: "Internal Server Error: " + errId.String()})
 		return
 	}
 
@@ -129,7 +129,7 @@ func (controller *TemplateController) get(c *gin.Context) {
 func (controller *TemplateController) delete(c *gin.Context) {
 	slug := c.Param("slug")
 	if slug == "" {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Error: "id/slug is required"})
+		c.JSON(http.StatusBadRequest, types.ErrorResponse{Error: "id/slug is required"})
 		return
 	}
 
@@ -137,7 +137,7 @@ func (controller *TemplateController) delete(c *gin.Context) {
 	if err != nil {
 		errId := uuid.New()
 		log.Error().Str("error_id", errId.String()).Err(err).Msg("Error")
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Error: "Internal Server Error: " + errId.String()})
+		c.JSON(http.StatusInternalServerError, types.ErrorResponse{Error: "Internal Server Error: " + errId.String()})
 		return
 	}
 

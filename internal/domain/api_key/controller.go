@@ -5,10 +5,10 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ricardoalcantara/api-email-client/internal/domain"
 	"github.com/ricardoalcantara/api-email-client/internal/middlewares"
 	"github.com/ricardoalcantara/api-email-client/internal/models"
 	"github.com/ricardoalcantara/api-email-client/internal/utils"
+	"github.com/ricardoalcantara/api-email-client/pkg/types"
 )
 
 type ApiKeyController struct {
@@ -22,7 +22,7 @@ func NewApiKeyController() *ApiKeyController {
 }
 
 func (controller *ApiKeyController) post(c *gin.Context) {
-	var input CreateApiKeyDto
+	var input types.CreateApiKeyDto
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -63,7 +63,7 @@ func (controller *ApiKeyController) list(c *gin.Context) {
 func (controller *ApiKeyController) get(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, domain.ErrorResponse{Error: utils.PrintError(err)})
+		c.AbortWithStatusJSON(http.StatusBadRequest, types.ErrorResponse{Error: utils.PrintError(err)})
 		return
 	}
 
@@ -75,7 +75,7 @@ func (controller *ApiKeyController) get(c *gin.Context) {
 
 	view, err := controller.service.get(uint(userId), uint(id))
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, domain.ErrorResponse{Error: utils.PrintError(err)})
+		c.AbortWithStatusJSON(http.StatusBadRequest, types.ErrorResponse{Error: utils.PrintError(err)})
 		return
 	}
 	c.JSON(http.StatusOK, view)
@@ -87,7 +87,7 @@ func (controller *ApiKeyController) regenerate(c *gin.Context) {
 func (controller *ApiKeyController) delete(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, domain.ErrorResponse{Error: utils.PrintError(err)})
+		c.AbortWithStatusJSON(http.StatusBadRequest, types.ErrorResponse{Error: utils.PrintError(err)})
 		return
 	}
 	userId, err := strconv.Atoi(c.GetString("x-id"))
@@ -97,7 +97,7 @@ func (controller *ApiKeyController) delete(c *gin.Context) {
 	}
 
 	if err := controller.service.delete(uint(userId), uint(id)); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, domain.ErrorResponse{Error: utils.PrintError(err)})
+		c.AbortWithStatusJSON(http.StatusBadRequest, types.ErrorResponse{Error: utils.PrintError(err)})
 		return
 	}
 

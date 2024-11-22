@@ -43,7 +43,7 @@ const TemplateEdit = () => {
               </AlertDescription>
             </Alert>
           )}
-          {template && (<TemplateForm onSubmit={onSubmit} isLoading={isLoading || isLoadingTemplate} defaultValues={template} />)}
+          {template && (<TemplateForm onSubmit={onSubmit} isLoading={isLoading || isLoadingTemplate} defaultValues={template} slug={slug} />)}
         </CardContent>
       </Card>
     </div>

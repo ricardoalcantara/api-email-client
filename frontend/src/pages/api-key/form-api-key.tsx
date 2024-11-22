@@ -1,15 +1,8 @@
-import React, { useState } from 'react';
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Trash2, Plus, AlertCircle } from "lucide-react";
 import { format, addDays } from "date-fns";
 import {
   Form,
@@ -27,10 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { usePostApiKeyMutation } from '@/services';
-import { getError } from '@/lib/error';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import AlertError from '@/components/alert-error';
 
 const EXPIRATION_OPTIONS = {
   '30_DAYS': '30 Days',
@@ -40,7 +29,7 @@ const EXPIRATION_OPTIONS = {
   'NO_EXPIRE': 'No Expiration'
 } as const;
 
-const formSchema = z.object({
+export const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   expirationType: z.enum(['30_DAYS', '60_DAYS', '90_DAYS', 'CUSTOM', 'NO_EXPIRE']),
   expires_at: z.string().optional(),
