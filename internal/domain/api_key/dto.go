@@ -7,9 +7,9 @@ import (
 )
 
 type CreateApiKeyDto struct {
-	Name        string     `json:"name" binding:"required"`
-	IpWhitelist string     `json:"ip_whitelist" binding:"required"`
-	ExpiresAt   *time.Time `json:"expires_at"`
+	Name        string `json:"name" binding:"required"`
+	IpWhitelist string `json:"ip_whitelist"`
+	ExpiresAt   string `json:"expires_at"`
 }
 
 type ApiKeyDto struct {
@@ -18,15 +18,20 @@ type ApiKeyDto struct {
 	Key         string     `json:"key,omitempty"`
 	LastUsed    *time.Time `json:"last_used"`
 	IpWhitelist string     `json:"ip_whitelist"`
-	ExpiresAt   *time.Time `json:"expires_at"`
+	ExpiresAt   string     `json:"expires_at"`
 }
 
 func NewApiKeyDto(a *models.ApiKey) ApiKeyDto {
-	return ApiKeyDto{
+	dtp := ApiKeyDto{
 		Id:          a.ID,
 		Name:        a.Name,
 		LastUsed:    a.LastUsed,
 		IpWhitelist: a.IpWhitelist,
-		ExpiresAt:   a.ExpiresAt,
 	}
+
+	if a.ExpiresAt != nil {
+		dtp.ExpiresAt = a.ExpiresAt.Format(time.RFC3339)
+	}
+
+	return dtp
 }

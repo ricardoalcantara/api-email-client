@@ -53,10 +53,16 @@ export interface EmailView {
 }
 
 export interface ApiKeyDto {
-  id: string;
+  id: number;
   name: string;
   key: string | undefined;
-  lastUsed: string;
-  ipWhitelist: string[];
-  expiresAt: string;
+  last_used: string;
+  ip_whitelist: string;
+  expires_at: string;
+}
+
+export interface CreateApiKeyDto {
+  name: string;
+  expires_at: string | null | undefined;
+  ip_whitelist: string | null | undefined;
 }

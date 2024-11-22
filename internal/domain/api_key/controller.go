@@ -110,9 +110,9 @@ func RegisterRoutes(r *gin.Engine) {
 
 	routes := r.Group("/api")
 	routes.Use(middlewares.AuthMiddleware())
-	routes.GET("/api_key", controller.list)
-	routes.POST("/api_key", controller.post)
-	routes.GET("/api_key/:id", controller.get)
-	routes.PATCH("/api_key/:id", controller.regenerate)
-	routes.DELETE("/api_key/:id", controller.delete)
+	routes.GET("/api-key", controller.list)
+	routes.POST("/api-key", controller.post)
+	routes.GET("/api-key/:id", controller.get)
+	routes.PATCH("/api-key/:id", controller.regenerate)
+	routes.DELETE("/api-key/:id", controller.delete)
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,70 +9,51 @@ import { Label } from "@/components/ui/label";
 import { Trash2, Plus, X } from "lucide-react";
 import { format, addMonths } from "date-fns";
 import { ApiKeyDto } from '@/services/dto';
-import { useListApiKeyQuery } from '@/services';
+import { useDeleteApiKeyMutation, useListApiKeyQuery } from '@/services';
+import DialogAddApiKeys from './dialog-add-api-keys';
 
 const ApiKeyList = () => {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [newKey, setNewKey] = React.useState({
-    name: '',
-    expiresAt: format(addMonths(new Date(), 1), "yyyy-MM-dd"),
-    ipWhitelist: ['']
-  });
+  const [deleteApiKey, { isLoading: isDeleting }] = useDeleteApiKeyMutation();
 
-  const { data: apiKeys, isLoading, isError } = useListApiKeyQuery(undefined, {
+  const { data: apiKeys, isLoading, isError, refetch } = useListApiKeyQuery(undefined, {
     refetchOnMountOrArgChange: true
   });
 
-  const handleRowClick = (item: ApiKeyDto) => {
-    // navigate(`/smtp/${item.slug}`);
-  };
+  useEffect(() => {
+    if (!isOpen) {
+      refetch().catch(error => {
+        console.error("Failed to refetch API keys:", error);
+      });
+    }
+  }, [isOpen, refetch]);
 
-  const handleDelete = (id) => {
-    console.log("Delete API key:", id);
-  };
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteApiKey(id).unwrap();
+    } catch (err) {
+      console.error("Failed to delete API key:", err);
+    }
 
-  const handleCreateKey = () => {
-    console.log("Create new API key:", newKey);
-    // Reset form and close modal
-    setNewKey({
-      name: '',
-      expiresAt: format(addMonths(new Date(), 1), "yyyy-MM-dd"),
-      ipWhitelist: ['']
-    });
-    setIsOpen(false);
-  };
-
-  const addIpInput = () => {
-    setNewKey(prev => ({
-      ...prev,
-      ipWhitelist: [...prev.ipWhitelist, '']
-    }));
-  };
-
-  const removeIpInput = (index) => {
-    setNewKey(prev => ({
-      ...prev,
-      ipWhitelist: prev.ipWhitelist.filter((_, i) => i !== index)
-    }));
-  };
-
-  const updateIpInput = (index, value) => {
-    setNewKey(prev => ({
-      ...prev,
-      ipWhitelist: prev.ipWhitelist.map((ip, i) => i === index ? value : ip)
-    }));
+    try {
+      await refetch().unwrap();
+    } catch (err) {
+      console.error("Failed to refetch API keys:", err);
+    }
   };
 
   // Helper function to check if a date is in the past
-  const isExpired = (date) => {
+  const isExpired = (date: string | null | undefined): boolean => {
+    if (!date) return false;
     return new Date(date) < new Date();
   };
 
   // Format IP whitelist for display
-  const formatIpWhitelist = (ips) => {
-    if (ips.length === 0) return "No IP restrictions";
-    if (ips.length === 1) return ips[0];
-    return `${ips[0]} +${ips.length - 1} more`;
+  const formatIpWhitelist = (ips: string | null | undefined): string => {
+    if (!ips) return "No IP restrictions";
+    const parts = (ips).split(",");
+    if (parts.length === 1) return parts[0];
+    return `${parts[0]} +${parts.length - 1} more`;
   };
 
   return (
@@ -80,71 +61,7 @@ const ApiKeyList = () => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle>API Keys</CardTitle>
-          <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Create API Key
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Create New API Key</DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="name">Name</Label>
-                  <Input
-                    id="name"
-                    placeholder="API Key Name"
-                    value={newKey.name}
-                    onChange={(e) => setNewKey(prev => ({ ...prev, name: e.target.value }))}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="expires">Expiration Date</Label>
-                  <Input
-                    id="expires"
-                    type="date"
-                    value={newKey.expiresAt}
-                    onChange={(e) => setNewKey(prev => ({ ...prev, expiresAt: e.target.value }))}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label>IP Whitelist</Label>
-                  {newKey.ipWhitelist.map((ip, index) => (
-                    <div key={index} className="flex gap-2">
-                      <Input
-                        placeholder="Enter IP address"
-                        value={ip}
-                        onChange={(e) => updateIpInput(index, e.target.value)}
-                      />
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        type="button"
-                        onClick={() => removeIpInput(index)}
-                        disabled={newKey.ipWhitelist.length === 1}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={addIpInput}
-                    className="mt-2"
-                  >
-                    Add IP Address
-                  </Button>
-                </div>
-                <Button onClick={handleCreateKey} className="mt-2">
-                  Create Key
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <DialogAddApiKeys open={isOpen} onOpenChange={setIsOpen} />
         </CardHeader>
         <CardContent>
           <div className="rounded-md border">
@@ -165,12 +82,12 @@ const ApiKeyList = () => {
                     <TableCell className="font-medium">#{item.id}</TableCell>
                     <TableCell>{item.name}</TableCell>
                     <TableCell className="text-muted-foreground">
-                      {format(new Date(item.lastUsed), "MMM d, yyyy HH:mm")}
+                      {!!item.last_used ? format(new Date(item.last_used), "MMM d, yyyy HH:mm") : "-"}
                     </TableCell>
-                    <TableCell>{formatIpWhitelist(item.ipWhitelist)}</TableCell>
+                    <TableCell>{formatIpWhitelist(item.ip_whitelist)}</TableCell>
                     <TableCell>
-                      <Badge variant={isExpired(item.expiresAt) ? "destructive" : "default"}>
-                        {format(new Date(item.expiresAt), "MMM d, yyyy")}
+                      <Badge variant={isExpired(item.expires_at) ? "destructive" : "default"}>
+                        {!!item.expires_at ? format(new Date(item.expires_at), "MMM d, yyyy") : "-"}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -179,6 +96,7 @@ const ApiKeyList = () => {
                         size="icon"
                         onClick={() => handleDelete(item.id)}
                         className="hover:text-destructive"
+                        disabled={isDeleting || isLoading}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

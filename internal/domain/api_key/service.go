@@ -1,6 +1,8 @@
 package apikey
 
 import (
+	"time"
+
 	"github.com/ricardoalcantara/api-email-client/internal/domain"
 	"github.com/ricardoalcantara/api-email-client/internal/models"
 )
@@ -19,7 +21,13 @@ func (s *ApiKeyService) post(userId uint, input CreateApiKeyDto) (*ApiKeyDto, er
 		return nil, err
 	}
 	apiKey.Name = input.Name
-	apiKey.ExpiresAt = input.ExpiresAt
+	if len(input.ExpiresAt) > 0 {
+		expiresAt, err := time.Parse(time.DateOnly, input.ExpiresAt)
+		if err != nil {
+			return nil, err
+		}
+		apiKey.ExpiresAt = &expiresAt
+	}
 	apiKey.IpWhitelist = input.IpWhitelist
 	apiKey.UserId = userId
 

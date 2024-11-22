@@ -11,6 +11,7 @@ import {
   UpdateSmtpDto,
   EmailView,
   ApiKeyDto,
+  CreateApiKeyDto,
 } from "./dto";
 
 export const api = createApi({
@@ -113,6 +114,19 @@ export const api = createApi({
         method: "GET",
       }),
     }),
+    postApiKey: builder.mutation<ApiKeyDto, CreateApiKeyDto>({
+      query: (apiKey) => ({
+        url: "/api/api-key",
+        method: "POST",
+        body: apiKey,
+      }),
+    }),
+    deleteApiKey: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `/api/api-key/${id}`,
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
@@ -131,7 +145,8 @@ export const {
   useDeleteSmtpMutation,
   // Email hooks
   useListEmailQuery,
-
   // ApiKey hooks
   useListApiKeyQuery,
+  usePostApiKeyMutation,
+  useDeleteApiKeyMutation,
 } = api;
