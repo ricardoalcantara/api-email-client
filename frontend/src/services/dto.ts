@@ -94,3 +94,8 @@ export interface DashboardDto {
   smtps: number;
   api_keys: number;
 }
+
+export interface UpdatePasswordDto {
+  current_password: string;
+  new_password: string;
+}

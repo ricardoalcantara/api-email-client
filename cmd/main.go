@@ -14,6 +14,7 @@ import (
 	"github.com/ricardoalcantara/api-email-client/internal/domain/email"
 	"github.com/ricardoalcantara/api-email-client/internal/domain/smtp"
 	"github.com/ricardoalcantara/api-email-client/internal/domain/template"
+	"github.com/ricardoalcantara/api-email-client/internal/domain/user"
 	"github.com/ricardoalcantara/api-email-client/internal/emailengine"
 	"github.com/ricardoalcantara/api-email-client/internal/models"
 	"github.com/ricardoalcantara/api-email-client/internal/utils"
@@ -58,6 +59,7 @@ func main() {
 	template.RegisterRoutes(api)
 	apikey.RegisterRoutes(api)
 	dashboard.RegisterRoutes(api)
+	user.RegisterRoutes(api)
 
 	host := utils.GetEnv("API_HOST", "")
 	port := utils.GetEnv("API_PORT", "5555")

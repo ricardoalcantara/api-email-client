@@ -20,6 +20,14 @@ func (u *User) Save() error {
 	return db.Create(&u).Error
 }
 
+func (u *User) Update() error {
+	return db.Save(&u).Error
+}
+
+func (u *User) Updates(update map[string]interface{}) error {
+	return db.Model(&u).Updates(update).Error
+}
+
 func (u *User) SetPassword(password string) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -29,7 +37,7 @@ func (u *User) SetPassword(password string) error {
 	return nil
 }
 
-var ErrMismatchedHashAndPassword = errors.New("invalid email or password")
+var ErrMismatchedHashAndPassword = errors.New("invalid")
 
 func (u *User) VerifyPassword(password string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
@@ -46,6 +54,15 @@ func (u *User) VerifyPassword(password string) error {
 
 func GetUserByEmail(email string) (*User, error) {
 	u := User{Email: email}
+	err := db.First(&u).Error
+	if err != nil {
+		return nil, err
+	}
+	return &u, nil
+}
+
+func GetUser(id uint) (*User, error) {
+	u := User{Model: gorm.Model{ID: id}}
 	err := db.First(&u).Error
 	if err != nil {
 		return nil, err

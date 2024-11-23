@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"errors"
+
 	"github.com/google/uuid"
 	"github.com/ricardoalcantara/api-email-client/internal/models"
 	"github.com/ricardoalcantara/api-email-client/internal/token"
@@ -16,9 +18,9 @@ func (s *AuthService) Token(input types.TokenInput) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	err = client.VerifyPassword(input.Password);
+	err = client.VerifyPassword(input.Password)
 	if err != nil {
-		return "", err
+		return "", errors.New(err.Error() + "email or password")
 	}
 
 	jti, _ := uuid.NewUUID()

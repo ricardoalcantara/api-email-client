@@ -17,6 +17,7 @@ import EmailList from "@/pages/email";
 import ApiKeyList from "@/pages/api-key";
 import EmailTemplateGenerator from "@/pages/template/:slug/generator";
 import EmailSend from "@/pages/email/send";
+import UserHome from "@/pages/user";
 
 const Routers = createBrowserRouter([
   {
@@ -69,6 +70,10 @@ const Routers = createBrowserRouter([
             path: "/api-key",
             element: <ApiKeyList />,
           },
+          {
+            path: "/user",
+            element: <UserHome />,
+          }
         ],
       },
     ],

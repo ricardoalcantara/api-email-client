@@ -1,4 +1,4 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react"
+import { Calendar, Home, Inbox, Search, Settings, User } from "lucide-react";
 
 const MenuItems = [
   {
@@ -26,6 +26,11 @@ const MenuItems = [
     url: "/api-key",
     icon: Settings,
   },
-]
+  {
+    title: "User",
+    url: "/user",
+    icon: User,
+  },
+];
 
 export default MenuItems;

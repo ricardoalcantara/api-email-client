@@ -15,11 +15,12 @@ import {
   TemplateGeneratorDto,
   RequestTemplateGeneratorDto,
   SendEmail,
+  DashboardDto,
+  UpdatePasswordDto,
 } from "./dto";
 
 export const api = createApi({
   baseQuery: fetchBaseQuery({
-    // baseUrl: 'http://localhost:5555',
     prepareHeaders: (headers) => {
       const token = localStorage.getItem("access_token");
       if (token) {
@@ -186,6 +187,15 @@ export const api = createApi({
         method: "GET",
       }),
     }),
+
+    // User
+    patchPassword: builder.mutation<void, UpdatePasswordDto>({
+      query: (password) => ({
+        url: "/api/user/password",
+        method: "PATCH",
+        body: password,
+      }),
+    }),
   }),
 });
 
@@ -216,4 +226,6 @@ export const {
   useDeleteApiKeyMutation,
   // Dashboard hooks
   useGetDashboardQuery,
+  // User hooks
+  usePatchPasswordMutation,
 } = api;
