@@ -3,19 +3,34 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { Link, useNavigate } from 'react-router-dom';
-import { useListSmtpQuery } from '@/services';
+import { useDeleteSmtpMutation, useListSmtpQuery } from '@/services';
 import { SmtpDto } from '@/services/dto';
 
 const SmtpList = () => {
   const navigate = useNavigate();
-  const { data: smtps, isLoading, isError } = useListSmtpQuery(undefined, {
+  const [deleteSmtp, { isLoading: isDeleting }] = useDeleteSmtpMutation();
+  const { data: smtps, isLoading, isError, refetch } = useListSmtpQuery(undefined, {
     refetchOnMountOrArgChange: true
   });
 
   const handleRowClick = (item: SmtpDto) => {
     navigate(`/smtp/${item.slug}`);
+  };
+
+  const handleDelete = async (slug: string) => {
+    try {
+      await deleteSmtp(slug).unwrap();
+    } catch (err) {
+      console.error("Failed to delete API key:", err);
+    }
+
+    try {
+      await refetch().unwrap();
+    } catch (err) {
+      console.error("Failed to refetch API keys:", err);
+    }
   };
 
   return (
@@ -40,25 +55,36 @@ const SmtpList = () => {
                   <TableHead>Port</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>User</TableHead>
-                  <TableHead className="text-center">Status</TableHead>
+                  <TableHead className="text-center">Is Default</TableHead>
+                  <TableHead className="w-[100px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {smtps?.list?.map((item) => (
                   <TableRow
                     key={item.id}
-                    onClick={() => handleRowClick(item)}
                     className="cursor-pointer hover:bg-muted/50 transition-colors"
                   >
-                    <TableCell className="font-medium">{item.name}</TableCell>
-                    <TableCell>{item.server}</TableCell>
-                    <TableCell>{item.port}</TableCell>
-                    <TableCell>{item.email}</TableCell>
-                    <TableCell>{item.user}</TableCell>
+                    <TableCell onClick={() => handleRowClick(item)} className="font-medium">{item.name}</TableCell>
+                    <TableCell onClick={() => handleRowClick(item)}>{item.server}</TableCell>
+                    <TableCell onClick={() => handleRowClick(item)}>{item.port}</TableCell>
+                    <TableCell onClick={() => handleRowClick(item)}>{item.email}</TableCell>
+                    <TableCell onClick={() => handleRowClick(item)}>{item.user}</TableCell>
                     <TableCell className="text-center">
                       {item.default && (
                         <Badge variant="default">Default</Badge>
                       )}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDelete(item.slug)}
+                        className="hover:text-destructive"
+                        disabled={isDeleting || isLoading}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}

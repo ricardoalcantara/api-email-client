@@ -12,6 +12,9 @@ import {
   EmailView,
   ApiKeyDto,
   CreateApiKeyDto,
+  TemplateGeneratorDto,
+  RequestTemplateGeneratorDto,
+  SendEmail,
 } from "./dto";
 
 export const api = createApi({
@@ -56,12 +59,38 @@ export const api = createApi({
     }),
     putTemplate: builder.mutation<
       TemplateDto,
-      { slug: string; template: UpdateTemplateDto }
+      { slug: string; template: CreateTemplateDto }
     >({
       query: ({ slug, template }) => ({
         url: `/api/template/${slug}`,
         method: "PUT",
         body: template,
+      }),
+    }),
+    patchTemplate: builder.mutation<
+      TemplateDto,
+      { slug: string; template: UpdateTemplateDto }
+    >({
+      query: ({ slug, template }) => ({
+        url: `/api/template/${slug}`,
+        method: "PATCH",
+        body: template,
+      }),
+    }),
+    deleteTemplate: builder.mutation<void, string>({
+      query: (slug) => ({
+        url: `/api/template/${slug}`,
+        method: "DELETE",
+      }),
+    }),
+    generateTemplate: builder.mutation<
+      TemplateGeneratorDto,
+      RequestTemplateGeneratorDto
+    >({
+      query: (body) => ({
+        url: `/api/template/generator`,
+        method: "POST",
+        body,
       }),
     }),
 
@@ -85,13 +114,22 @@ export const api = createApi({
         method: "GET",
       }),
     }),
-    putSmtp: builder.mutation<SmtpDto, { slug: string; smtp: UpdateSmtpDto }>({
+    putSmtp: builder.mutation<SmtpDto, { slug: string; smtp: CreateSmtpDto }>({
       query: ({ slug, smtp }) => ({
         url: `/api/smtp/${slug}`,
         method: "PUT",
         body: smtp,
       }),
     }),
+    patchSmtp: builder.mutation<SmtpDto, { slug: string; smtp: UpdateSmtpDto }>(
+      {
+        query: ({ slug, smtp }) => ({
+          url: `/api/smtp/${slug}`,
+          method: "PATCH",
+          body: smtp,
+        }),
+      }
+    ),
     deleteSmtp: builder.mutation<void, string>({
       query: (slug) => ({
         url: `/api/smtp/${slug}`,
@@ -104,6 +142,19 @@ export const api = createApi({
       query: () => ({
         url: "/api/email",
         method: "GET",
+      }),
+    }),
+    sendEmail: builder.mutation<void, SendEmail>({
+      query: (email) => ({
+        url: "/api/email",
+        method: "POST",
+        body: email,
+      }),
+    }),
+    resendEmail: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `/api/email/${id}/send`,
+        method: "PATCH",
       }),
     }),
 
@@ -127,6 +178,14 @@ export const api = createApi({
         method: "DELETE",
       }),
     }),
+
+    // Dashboard
+    getDashboard: builder.query<DashboardDto, void>({
+      query: () => ({
+        url: "/api/dashboard",
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -137,16 +196,24 @@ export const {
   usePostTemplateMutation,
   useGetTemplateQuery,
   usePutTemplateMutation,
+  usePatchTemplateMutation,
+  useDeleteTemplateMutation,
+  useGenerateTemplateMutation,
   // SMTP hooks
   useListSmtpQuery,
   usePostSmtpMutation,
   useGetSmtpQuery,
   usePutSmtpMutation,
+  usePatchSmtpMutation,
   useDeleteSmtpMutation,
   // Email hooks
   useListEmailQuery,
+  useSendEmailMutation,
+  useResendEmailMutation,
   // ApiKey hooks
   useListApiKeyQuery,
   usePostApiKeyMutation,
   useDeleteApiKeyMutation,
+  // Dashboard hooks
+  useGetDashboardQuery,
 } = api;

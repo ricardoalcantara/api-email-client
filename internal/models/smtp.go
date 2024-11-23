@@ -130,3 +130,12 @@ func (s *Smtp) GetDialer() (*gomail.Dialer, error) {
 	}
 	return gomail.NewDialer(s.Server, int(s.Port), s.User, password), nil
 }
+
+func SmtpCount() (int64, error) {
+	var count int64
+	err := db.Model(&Smtp{}).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}

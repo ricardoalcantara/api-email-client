@@ -160,7 +160,7 @@ const TemplateForm = ({ onSubmit, isLoading, defaultValues, slug }: TemplateForm
             {slug ? (
 
               <Button asChild variant='outline'>
-                <Link to={`/template/${slug}/generate`}>
+                <Link to={`/template/${slug}/generator`}>
                   Regenerate
                 </Link>
               </Button>
@@ -179,9 +179,10 @@ const TemplateForm = ({ onSubmit, isLoading, defaultValues, slug }: TemplateForm
           </FormLabel>
           {!generated && (
             <Tabs defaultValue="html" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="html">HTML Template</TabsTrigger>
                 <TabsTrigger value="text">Text Template</TabsTrigger>
+                <TabsTrigger value="preview">Preview</TabsTrigger>
               </TabsList>
               <TabsContent value="html" className="mt-4">
                 <FormField
@@ -223,6 +224,12 @@ const TemplateForm = ({ onSubmit, isLoading, defaultValues, slug }: TemplateForm
                       <FormMessage />
                     </FormItem>
                   )}
+                />
+              </TabsContent>
+              <TabsContent value="preview" className="mt-4">
+                <div
+                  className="border p-4 rounded bg-white min-h-[200px]"
+                  dangerouslySetInnerHTML={{ __html: form.getValues("template_html") }}
                 />
               </TabsContent>
             </Tabs>

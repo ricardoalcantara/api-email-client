@@ -2,21 +2,43 @@ import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
-import { ChevronRight } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
-import { useListEmailQuery } from '@/services';
+import { Mail, RefreshCcw } from "lucide-react";
+import { Link, useNavigate } from 'react-router-dom';
+import { useListEmailQuery, useResendEmailMutation } from '@/services';
+import { Button } from '@/components/ui/button';
 
 const EmailList = () => {
   const navigate = useNavigate();
-  const { data: smtps, isLoading, isError } = useListEmailQuery(undefined, {
+  const [resendEmail, { isLoading: isSending }] = useResendEmailMutation();
+
+  const { data: smtps, isLoading, isError, refetch } = useListEmailQuery(undefined, {
     refetchOnMountOrArgChange: true
   });
+
+  const handleResend = async (id: number) => {
+    try {
+      await resendEmail(id).unwrap();
+    } catch (err) {
+      console.error("Failed to resend email:", err);
+    }
+  };
 
   return (
     <div className="p-8">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle>Sent Emails</CardTitle>
+          <div className="flex gap-2">
+            <Button variant='outline' onClick={refetch} disabled={isLoading || isSending}>
+              <RefreshCcw className="h-4 w-4" />
+            </Button>
+            <Button asChild>
+              <Link to="/email/send">
+                <Mail className="mr-2 h-4 w-4" />
+                Send Email
+              </Link>
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="rounded-md border">
@@ -29,7 +51,7 @@ const EmailList = () => {
                   <TableHead>To</TableHead>
                   <TableHead>Subject</TableHead>
                   <TableHead className="text-right">Sent At</TableHead>
-                  <TableHead className="w-[50px]"></TableHead>
+                  <TableHead className="w-[100px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -46,9 +68,15 @@ const EmailList = () => {
                       {item.sent_at && format(new Date(item.sent_at), "MMM d, yyyy HH:mm:ss")}
                     </TableCell>
                     <TableCell>
-                      <ChevronRight
-                        className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground"
-                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleResend(item.id)}
+                        className="hover:text-destructive"
+                        disabled={isSending || isLoading}
+                      >
+                        <Mail className="h-4 w-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}

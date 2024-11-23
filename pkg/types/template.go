@@ -1,5 +1,7 @@
 package types
 
+import "github.com/matcornic/hermes/v2"
+
 type TemplateDto struct {
 	ID           uint   `json:"id"`
 	Name         string `json:"name"`
@@ -26,4 +28,15 @@ type UpdateTemplateDto struct {
 	Subject      *string `json:"subject"`
 	TemplateHtml *string `json:"template_html"`
 	TemplateText *string `json:"template_text"`
+}
+
+type RequestTemplateGeneratorDto struct {
+	Theme string          `json:"theme"`
+	Config hermes.Hermes `json:"config"`
+	Email  hermes.Body   `json:"email"`
+}
+
+type TemplateGeneratorDto struct {
+	TemplateHtml string `json:"template_html"`
+	TemplateText string `json:"template_text"`
 }

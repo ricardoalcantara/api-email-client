@@ -86,7 +86,7 @@ func (controller *SmtpController) put(c *gin.Context) {
 		return
 	}
 
-	var input types.UpdateSmtpDto
+	var input types.CreateSmtpDto
 	if err := c.ShouldBindJSON(&input); err != nil {
 		log.Debug().Err(err).Msg("Error")
 		c.JSON(http.StatusInternalServerError, types.ErrorResponse{Error: err.Error()})

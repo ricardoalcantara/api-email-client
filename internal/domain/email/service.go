@@ -91,3 +91,17 @@ func (s *EmailService) get(id uint) (*types.EmailDto, error) {
 
 	return &emailView, nil
 }
+
+func (s *EmailService) send(id uint) (*types.EmailDto, error) {
+	email, err := models.EmailGet(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = emailengine.SendEmailQueue(*email); err != nil {
+		return nil, err
+	}
+
+	emailView := NewEmailDto(email)
+	return &emailView, nil
+}

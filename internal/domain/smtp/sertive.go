@@ -14,15 +14,16 @@ func NewSmtpService() *SmtpService {
 
 func (s *SmtpService) Create(smtpDto *types.CreateSmtpDto) (*types.SmtpDto, error) {
 	smtp := models.Smtp{
-		Name:     smtpDto.Name,
-		Slug:     smtpDto.Slug,
-		Server:   smtpDto.Server,
-		Port:     smtpDto.Port,
-		Email:    smtpDto.Email,
-		User:     smtpDto.User,
-		Password: smtpDto.Password,
-		Default:  smtpDto.Default,
+		Name:    smtpDto.Name,
+		Slug:    smtpDto.Slug,
+		Server:  smtpDto.Server,
+		Port:    smtpDto.Port,
+		Email:   smtpDto.Email,
+		User:    smtpDto.User,
+		Default: smtpDto.Default,
 	}
+	smtp.SetBase64Password(smtpDto.Password)
+
 	err := smtp.Save()
 	if err != nil {
 		return nil, err
@@ -98,22 +99,22 @@ func (s *SmtpService) Patch(slug string, updateSmtp *types.UpdateSmtpDto) (*type
 	return &view, nil
 }
 
-func (s *SmtpService) Update(slug string, updateSmtp *types.UpdateSmtpDto) (*types.SmtpDto, error) {
+func (s *SmtpService) Update(slug string, updateSmtp *types.CreateSmtpDto) (*types.SmtpDto, error) {
 	smtp, err := models.SmtpGetBySlug(slug)
 	if err != nil {
 		return nil, err
 	}
 
-	smtp.Name = *updateSmtp.Name
-	smtp.Slug = *updateSmtp.Slug
-	smtp.Server = *updateSmtp.Server
-	smtp.Port = *updateSmtp.Port
-	smtp.Email = *updateSmtp.Email
-	smtp.User = *updateSmtp.User
-	smtp.Default = *updateSmtp.Default
+	smtp.Name = updateSmtp.Name
+	smtp.Slug = updateSmtp.Slug
+	smtp.Server = updateSmtp.Server
+	smtp.Port = updateSmtp.Port
+	smtp.Email = updateSmtp.Email
+	smtp.User = updateSmtp.User
+	smtp.Default = updateSmtp.Default
 
-	if updateSmtp.Password != nil && len(*updateSmtp.Password) > 0 {
-		smtp.SetBase64Password(*updateSmtp.Password)
+	if len(updateSmtp.Password) > 0 {
+		smtp.SetBase64Password(updateSmtp.Password)
 	}
 
 	err = smtp.Update()

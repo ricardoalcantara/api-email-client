@@ -115,3 +115,12 @@ func generateAPIKey() (string, string, string, error) {
 
 	return prefixStr, keyStr, string(hashedBytes), nil
 }
+
+func ApiKeyCount() (int64, error) {
+	var count int64
+	err := db.Model(&ApiKey{}).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}

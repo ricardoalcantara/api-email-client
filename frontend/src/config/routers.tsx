@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import ProtectedRouter from "@/components/router/protected-router";
 import MainLayout from "@/layouts/main-layout";
 
-import { Home } from "@/pages/home";
+import Home from "@/pages/home";
 import { Login } from "@/pages/login";
 
 import TemplateList from "@/pages/template";
@@ -16,6 +16,7 @@ import SmtpEdit from "@/pages/smtp/:slug";
 import EmailList from "@/pages/email";
 import ApiKeyList from "@/pages/api-key";
 import EmailTemplateGenerator from "@/pages/template/:slug/generator";
+import EmailSend from "@/pages/email/send";
 
 const Routers = createBrowserRouter([
   {
@@ -59,6 +60,10 @@ const Routers = createBrowserRouter([
           {
             path: "/email",
             element: <EmailList />,
+          },
+          {
+            path: "/email/send",
+            element: <EmailSend />,
           },
           {
             path: "/api-key",

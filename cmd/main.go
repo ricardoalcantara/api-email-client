@@ -10,6 +10,7 @@ import (
 	"github.com/joho/godotenv"
 	apikey "github.com/ricardoalcantara/api-email-client/internal/domain/api_key"
 	"github.com/ricardoalcantara/api-email-client/internal/domain/auth"
+	"github.com/ricardoalcantara/api-email-client/internal/domain/dashboard"
 	"github.com/ricardoalcantara/api-email-client/internal/domain/email"
 	"github.com/ricardoalcantara/api-email-client/internal/domain/smtp"
 	"github.com/ricardoalcantara/api-email-client/internal/domain/template"
@@ -56,6 +57,7 @@ func main() {
 	smtp.RegisterRoutes(api)
 	template.RegisterRoutes(api)
 	apikey.RegisterRoutes(api)
+	dashboard.RegisterRoutes(api)
 
 	host := utils.GetEnv("API_HOST", "")
 	port := utils.GetEnv("API_PORT", "5555")

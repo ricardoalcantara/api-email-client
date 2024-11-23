@@ -58,3 +58,12 @@ func TemplateGetBySlug(slug string) (*Template, error) {
 	}
 	return &t, nil
 }
+
+func TemplateCount() (int64, error) {
+	var count int64
+	err := db.Model(&Template{}).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}

@@ -65,6 +65,22 @@ func (controller *EmailController) get(c *gin.Context) {
 	c.JSON(http.StatusOK, view)
 }
 
+func (controller *EmailController) send(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, types.ErrorResponse{Error: utils.PrintError(err)})
+		return
+	}
+
+	email, err := controller.service.send(uint(id))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, types.ErrorResponse{Error: utils.PrintError(err)})
+		return
+	}
+
+	c.JSON(http.StatusAccepted, email)
+}
+
 func RegisterRoutes(r *gin.Engine) {
 
 	controller := NewEmailController()
@@ -73,5 +89,6 @@ func RegisterRoutes(r *gin.Engine) {
 	routes.Use(middlewares.AuthMiddleware())
 	routes.GET("/email", controller.list)
 	routes.POST("/email", controller.post)
+	routes.PATCH("/email/:id/send", controller.send)
 	routes.GET("/email/:id", controller.get)
 }

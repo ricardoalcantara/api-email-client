@@ -1,3 +1,5 @@
+import { Hermes, HermesBody } from "./hermes";
+
 export interface LoginDto {
   email: string;
   password: string;
@@ -41,6 +43,14 @@ export interface SmtpDto {
 export type CreateSmtpDto = Omit<SmtpDto, "id">;
 export type UpdateSmtpDto = Partial<SmtpDto>;
 
+export interface SendEmail {
+  template_slug: string;
+  smtp_slug: string;
+  to: string;
+  subject?: string;
+  data: any;
+}
+
 export interface EmailView {
   id: number;
   smtp_name: string;
@@ -65,4 +75,22 @@ export interface CreateApiKeyDto {
   name: string;
   expires_at: string | null | undefined;
   ip_whitelist: string | null | undefined;
+}
+
+export interface RequestTemplateGeneratorDto {
+  theme: "Default" | "Flat" | undefined;
+  config: Hermes;
+  email: HermesBody;
+}
+
+export interface TemplateGeneratorDto {
+  template_html: string;
+  template_text: string;
+}
+
+export interface DashboardDto {
+  templates: number;
+  emails: number;
+  smtps: number;
+  api_keys: number;
 }

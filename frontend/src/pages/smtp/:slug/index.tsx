@@ -1,6 +1,6 @@
 import * as z from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useGetSmtpQuery, usePostSmtpMutation, usePutSmtpMutation } from "@/services";
+import { useGetSmtpQuery, usePatchSmtpMutation } from "@/services";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getError } from "@/lib/error";
@@ -16,7 +16,7 @@ const SmtpEdit = () => {
   const navigate = useNavigate();
 
   const [errorMsg, setErrorMsg] = useState("");
-  const [updateSmtp, { isLoading }] = usePutSmtpMutation();
+  const [updateSmtp, { isLoading }] = usePatchSmtpMutation();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {

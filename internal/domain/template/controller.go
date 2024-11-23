@@ -53,6 +53,24 @@ func (controller *TemplateController) post(c *gin.Context) {
 	c.JSON(http.StatusAccepted, templateDto)
 }
 
+func (controller *TemplateController) generator(c *gin.Context) {
+	var input types.RequestTemplateGeneratorDto
+	if err := c.ShouldBindJSON(&input); err != nil {
+		log.Debug().Err(err).Msg("Error")
+		c.JSON(http.StatusInternalServerError, types.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	templateGeneratorDto, err := controller.service.Generator(input)
+	if err != nil {
+		log.Debug().Err(err).Msg("Error")
+		c.JSON(http.StatusBadRequest, types.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, templateGeneratorDto)
+}
+
 func (controller *TemplateController) patch(c *gin.Context) {
 	slug := c.Param("slug")
 	if slug == "" {
@@ -86,7 +104,7 @@ func (controller *TemplateController) put(c *gin.Context) {
 		return
 	}
 
-	var input types.UpdateTemplateDto
+	var input types.CreateTemplateDto
 	if err := c.ShouldBindJSON(&input); err != nil {
 		log.Debug().Err(err).Msg("Error")
 		c.JSON(http.StatusInternalServerError, types.ErrorResponse{Error: err.Error()})
@@ -113,13 +131,6 @@ func (controller *TemplateController) get(c *gin.Context) {
 	template, err := controller.service.Get(slug)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, types.ErrorResponse{Error: err.Error()})
-		return
-	}
-
-	if err != nil {
-		errId := uuid.New()
-		log.Error().Str("error_id", errId.String()).Err(err).Msg("Error")
-		c.JSON(http.StatusInternalServerError, types.ErrorResponse{Error: "Internal Server Error: " + errId.String()})
 		return
 	}
 
@@ -152,6 +163,7 @@ func RegisterRoutes(r *gin.Engine) {
 	routes.Use(middlewares.AuthMiddleware())
 	routes.GET("/template", controller.list)
 	routes.POST("/template", controller.post)
+	routes.POST("/template/generator", controller.generator)
 	routes.GET("/template/:slug", controller.get)
 	routes.DELETE("/template/:slug", controller.delete)
 	routes.PATCH("/template/:slug", controller.patch)

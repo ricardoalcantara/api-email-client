@@ -30,6 +30,14 @@ func (s *TemplateService) Create(templateDto *types.CreateTemplateDto) (*types.T
 	return &view, nil
 }
 
+func (s *TemplateService) Generator(input types.RequestTemplateGeneratorDto) (*types.TemplateGeneratorDto, error) {
+	template, err := NewTemplateGeneratorDto(&input)
+	if err != nil {
+		return nil, err
+	}
+	return template, nil
+}
+
 func (s *TemplateService) Get(slug string) (*types.TemplateDto, error) {
 	template, err := models.TemplateGetBySlug(slug)
 	if err != nil {
@@ -90,18 +98,18 @@ func (s *TemplateService) Patch(slug string, updateTemplate *types.UpdateTemplat
 	return &view, nil
 }
 
-func (s *TemplateService) Update(slug string, updateTemplate *types.UpdateTemplateDto) (*types.TemplateDto, error) {
+func (s *TemplateService) Update(slug string, updateTemplate *types.CreateTemplateDto) (*types.TemplateDto, error) {
 	template, err := models.TemplateGetBySlug(slug)
 	if err != nil {
 		return nil, err
 	}
 
-	template.Name = *updateTemplate.Name
-	template.Slug = *updateTemplate.Slug
-	template.JsonSchema = *updateTemplate.JsonSchema
-	template.Subject = *updateTemplate.Subject
-	template.TemplateHtml = *updateTemplate.TemplateHtml
-	template.TemplateText = *updateTemplate.TemplateText
+	template.Name = updateTemplate.Name
+	template.Slug = updateTemplate.Slug
+	template.JsonSchema = updateTemplate.JsonSchema
+	template.Subject = updateTemplate.Subject
+	template.TemplateHtml = updateTemplate.TemplateHtml
+	template.TemplateText = updateTemplate.TemplateText
 
 	err = template.Update()
 	if err != nil {

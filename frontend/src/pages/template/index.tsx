@@ -9,19 +9,34 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { useListTemplateQuery } from "@/services";
+import { useDeleteTemplateMutation, useListTemplateQuery } from "@/services";
 import { TemplateDto } from "@/services/dto";
 
 const TemplateList = () => {
   const navigate = useNavigate();
-  const { data: templates, isLoading, isError } = useListTemplateQuery(undefined, {
+  const [deleteTemplate, { isLoading: isDeleting }] = useDeleteTemplateMutation();
+  const { data: templates, isLoading, isError, refetch } = useListTemplateQuery(undefined, {
     refetchOnMountOrArgChange: true
   });
 
   const handleRowClick = (item: TemplateDto) => {
     navigate(`/template/${item.slug}`);
+  };
+
+  const handleDelete = async (slug: string) => {
+    try {
+      await deleteTemplate(slug).unwrap();
+    } catch (err) {
+      console.error("Failed to delete API key:", err);
+    }
+
+    try {
+      await refetch().unwrap();
+    } catch (err) {
+      console.error("Failed to refetch API keys:", err);
+    }
   };
 
   return (
@@ -45,19 +60,30 @@ const TemplateList = () => {
                   <TableHead>Name</TableHead>
                   <TableHead>Subject</TableHead>
                   <TableHead>Slug</TableHead>
+                  <TableHead className="w-[100px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {templates?.list?.map((item) => (
                   <TableRow
                     key={item.id}
-                    onClick={() => handleRowClick(item)}
                     className="cursor-pointer hover:bg-muted/50 transition-colors"
                   >
-                    <TableCell className="font-medium">{item.id}</TableCell>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell>{item.subject}</TableCell>
-                    <TableCell>{item.slug}</TableCell>
+                    <TableCell onClick={() => handleRowClick(item)} className="font-medium">{item.id}</TableCell>
+                    <TableCell onClick={() => handleRowClick(item)}>{item.name}</TableCell>
+                    <TableCell onClick={() => handleRowClick(item)}>{item.subject}</TableCell>
+                    <TableCell onClick={() => handleRowClick(item)}>{item.slug}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDelete(item.slug)}
+                        className="hover:text-destructive"
+                        disabled={isDeleting || isLoading}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
