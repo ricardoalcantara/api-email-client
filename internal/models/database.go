@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"strings"
 
@@ -44,66 +43,37 @@ func ConnectDataBase() {
 
 	migrate()
 	createAdmin()
-	createTemplate()
-	createSmtp()
 }
 
 func migrate() {
-	db.AutoMigrate(&Client{})
+	db.AutoMigrate(&User{})
 	db.AutoMigrate(&Smtp{})
 	db.AutoMigrate(&Template{})
 	db.AutoMigrate(&Email{})
+	db.AutoMigrate(&ApiKey{})
 }
 
 func createAdmin() {
 
-	if err := db.Take(&Client{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-		clientId := utils.GetEnvOr("CLIENT_ID", func() string {
+	if err := db.Take(&User{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		email := utils.GetEnvOr("ADMIN_EMAIL", func() string {
 			return utils.GenString(50)
 		})
-		clientSecret := utils.GetEnvOr("CLIENT_SECRET", func() string {
+		password := utils.GetEnvOr("ADMIN_PASSWORD", func() string {
 			return utils.GenString(100)
 		})
 
 		log.Debug().Msg("Admin Created")
 
-		client := Client{
-			Name:         "Admin",
-			ClientId:     clientId,
-			ClientSecret: clientSecret,
+		user := User{
+			Name:  "Admin",
+			Email: email,
+		}
+		err := user.SetPassword(password)
+		if err != nil {
+			log.Fatal().Err(err).Msg("Admin Password Error")
 		}
 
-		client.Save()
-
-		fmt.Printf("ClientId: %s\n", client.ClientId)
-		fmt.Printf("ClientSecret: %s\n", client.ClientSecret)
-	}
-}
-
-func createTemplate() {
-	if err := db.Take(&Template{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-		t := Template{
-			Name:         "Default",
-			TemplateHtml: "<h1>{{.Name}}</h1>",
-			TemplateText: "{{.Name}}",
-		}
-
-		t.Save()
-	}
-}
-
-func createSmtp() {
-	if err := db.Take(&Smtp{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-		s := Smtp{
-			Name:     "Default",
-			Server:   "localhost",
-			Port:     1025,
-			Email:    "sample@email.com",
-			User:     "sample@email.com",
-			Password: "empty",
-			Default:  false,
-		}
-		s.Base64Password()
-		s.Save()
+		user.Save()
 	}
 }

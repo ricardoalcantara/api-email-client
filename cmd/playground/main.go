@@ -3,11 +3,70 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"strconv"
 
+	"github.com/joho/godotenv"
 	hermes "github.com/matcornic/hermes/v2"
+	"github.com/ricardoalcantara/api-email-client/pkg/client"
+	"github.com/ricardoalcantara/api-email-client/pkg/types"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
+func init() {
+	zerolog.CallerMarshalFunc = func(pc uintptr, file string, line int) string {
+		return filepath.Base(file) + ":" + strconv.Itoa(line)
+	}
+	log.Logger = log.
+		With().
+		Caller().
+		Logger().
+		Output(zerolog.ConsoleWriter{Out: os.Stderr})
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Debug().Msg("Fail loading .env file")
+	}
+}
+
 func main() {
+
+	apiClient := client.New(client.WithBaseURL("http://localhost:5555"))
+
+	getTokenResponse, err := apiClient.GetToken(os.Getenv("ADMIN_EMAIL"), os.Getenv("ADMIN_PASSWORD"))
+	if err != nil {
+		panic(err)
+	}
+	if getTokenResponse.Error != nil {
+		panic(getTokenResponse.Error)
+	}
+
+	apiClient = client.New(client.WithBaseURL("http://localhost:5555"), client.WithToken(getTokenResponse.Result.AccessToken))
+	createApikeyResponse, err := apiClient.CreateAPIKey(&types.CreateApiKeyDto{
+		Name:        "Teste",
+		IpWhitelist: "127.0.0.1",
+	})
+	if err != nil {
+		panic(err)
+	}
+	if createApikeyResponse.Error != nil {
+		panic(createApikeyResponse.Error)
+	}
+
+	apiClient = client.New(client.WithBaseURL("http://localhost:5555"), client.WithApiKey(createApikeyResponse.Result.Key))
+	listTemplatesResponse, err := apiClient.ListTemplates(1)
+	if err != nil {
+		panic(err)
+	}
+	if listTemplatesResponse.Error != nil {
+		panic(listTemplatesResponse.Error)
+	}
+	fmt.Println(listTemplatesResponse.Result)
+}
+
+func gen() {
+
 	name := "forgot-password"
 	h := hermes.Hermes{
 		Product: hermes.Product{
