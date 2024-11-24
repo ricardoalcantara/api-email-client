@@ -1,4 +1,4 @@
-FROM golang:1.20
+FROM golang:1.21-alpine AS build
 
 WORKDIR /usr/src/app
 
@@ -9,4 +9,8 @@ RUN go mod download && go mod verify
 COPY . .
 RUN go build -v -o /usr/local/bin/api_email_client cmd/main.go
 
+FROM alpine
+RUN apk --no-cache add ca-certificates
+WORKDIR /etc/api_email_client
+COPY --from=build /usr/local/bin/api_email_client /usr/local/bin/api_email_client
 CMD ["api_email_client"]

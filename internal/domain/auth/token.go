@@ -4,40 +4,25 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-	"github.com/ricardoalcantara/api-email-client/internal/models"
-	"github.com/ricardoalcantara/api-email-client/internal/token"
+	"github.com/ricardoalcantara/api-email-client/pkg/types"
 )
 
-type TokenInput struct {
-	ClientId     string `json:"client_id" binding:"required"`
-	ClientSecret string `json:"client_secret" binding:"required"`
-}
+func (controller *AuthController) token(c *gin.Context) {
 
-func Token(c *gin.Context) {
-
-	var input TokenInput
+	var input types.TokenInput
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	client, err := models.LoginCheck(input.ClientId, input.ClientSecret)
+	access_token, err := controller.service.Token(input)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	jti, _ := uuid.NewUUID()
-	token, err := token.CreateAccessToken(client, jti)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	// h.DB
-	c.JSON(200, gin.H{
-		"access_token": token,
+	c.JSON(200, types.TokenOutput{
+		AccessToken: access_token,
 	})
 }

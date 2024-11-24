@@ -55,7 +55,7 @@ func worker(emailChan <-chan models.Email) {
 			utils.PrintError(err)
 			continue
 		}
-		if err = SendEmail(d, email.Smtp.Email, email.To, email.Subject, email.HtmlBody, email.TextBody); err != nil {
+		if err = SendEmail(d, email.Smtp.Email, email.Smtp.Name, email.To, email.Subject, email.HtmlBody, email.TextBody); err != nil {
 			utils.PrintError(err)
 			continue
 		}
@@ -83,10 +83,10 @@ func SendEmailQueue(email models.Email) error {
 	}
 }
 
-func SendEmail(dialer *gomail.Dialer, from string, to string, subject string, htmlBody string, textBody string) error {
+func SendEmail(dialer *gomail.Dialer, from string, fromName string, to string, subject string, htmlBody string, textBody string) error {
 	m := gomail.NewMessage()
 
-	m.SetHeader("From", from)
+	m.SetAddressHeader("From", from, fromName)
 	m.SetHeader("To", to)
 	m.SetHeader("Subject", subject)
 	if len(textBody) > 0 {

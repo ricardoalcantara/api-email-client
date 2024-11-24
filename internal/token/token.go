@@ -17,7 +17,7 @@ type JwtCustomClaims struct {
 	jwt.RegisteredClaims
 }
 
-func CreateAccessToken(client *models.Client, jti uuid.UUID) (accessToken string, err error) {
+func CreateAccessToken(user *models.User, jti uuid.UUID) (accessToken string, err error) {
 	expiry, err := strconv.Atoi(os.Getenv("JWT_LIFESPAN"))
 	if err != nil {
 		return "", err
@@ -26,9 +26,9 @@ func CreateAccessToken(client *models.Client, jti uuid.UUID) (accessToken string
 	secret := os.Getenv("JWT_SECRET")
 	exp := time.Now().Add(time.Minute * time.Duration(expiry))
 	claims := &JwtCustomClaims{
-		Name: client.Name,
+		Name: user.Name,
 		RegisteredClaims: jwt.RegisteredClaims{
-			Subject:   strconv.Itoa(int(client.ID)),
+			Subject:   strconv.Itoa(int(user.ID)),
 			ExpiresAt: jwt.NewNumericDate(exp),
 			ID:        jti.String(),
 		},
@@ -41,7 +41,7 @@ func CreateAccessToken(client *models.Client, jti uuid.UUID) (accessToken string
 	return t, err
 }
 
-func CreateRefreshToken(client *models.Client, jti uuid.UUID) (refreshToken string, err error) {
+func CreateRefreshToken(user *models.User, jti uuid.UUID) (refreshToken string, err error) {
 	expiry, err := strconv.Atoi(os.Getenv("JWT_REFRESH_LIFESPAN"))
 	if err != nil {
 		return "", err
@@ -51,7 +51,7 @@ func CreateRefreshToken(client *models.Client, jti uuid.UUID) (refreshToken stri
 	exp := time.Now().Add(time.Hour * time.Duration(expiry))
 	claims := &JwtCustomClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
-			Subject:   strconv.Itoa(int(client.ID)),
+			Subject:   strconv.Itoa(int(user.ID)),
 			ExpiresAt: jwt.NewNumericDate(exp),
 			ID:        jti.String(),
 		},

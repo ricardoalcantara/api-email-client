@@ -1,0 +1,53 @@
+services:
+  backend:
+    image: docker.io/library/api_email_client:local
+    # ports:
+    #   - "8080:8080"
+    environment:
+      - DB_URL=host=postgres user=postgres password=postgres dbname=api_email_client port=5432 TimeZone=America/Sao_Paulo
+      - DB_DIALECTOR=postgres
+      - ADMIN_EMAIL=admin@email.com
+      - ADMIN_PASSWORD=admin00
+      - JWT_LIFESPAN=45
+      - JWT_SECRET=admin
+      - API_HOST=
+      - API_PORT=5555
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    
+
+  frontend:
+    image: docker.io/library/api_email_client_frontend:local
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    volumes:
+      - ./frontend/docker/default.conf.template:/etc/nginx/templates/default.conf.template
+    environment:
+      - BACKEND_URL=http://backend:5555
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=api_email_client
+    # ports:
+    #   - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+  mailhog:
+    image: mailhog/mailhog
+    restart: always
+    profiles:
+      - tester
+    ports:
+      - 1025:1025
+      - 8025:8025
+
+volumes:
+  postgres_data:

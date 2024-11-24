@@ -8,7 +8,7 @@ import (
 
 type Email struct {
 	gorm.Model
-	SentAt   time.Time
+	SentAt   *time.Time
 	SmtpId   uint
 	To       string `gorm:"size:255;not null;"`
 	Subject  string `gorm:"size:255;not null;"`
@@ -46,4 +46,13 @@ func EmailList(pagination *Pagination) ([]Email, error) {
 		return nil, err
 	}
 	return s, nil
+}
+
+func EmailCount() (int64, error) {
+	var count int64
+	err := db.Model(&Email{}).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }

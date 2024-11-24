@@ -2,90 +2,78 @@ package models
 
 import (
 	"errors"
-	"fmt"
 	"os"
+	"strings"
 
 	"github.com/ricardoalcantara/api-email-client/internal/utils"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 
 	"github.com/glebarez/sqlite"
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 var db *gorm.DB
 
 func ConnectDataBase() {
-	db_url := os.Getenv("DB_URL")
+	dbUrl := os.Getenv("DB_URL")
+	envDialector := os.Getenv("DB_DIALECTOR")
 	var err error
-	db, err = gorm.Open(sqlite.Open(db_url), &gorm.Config{})
+	var dialector gorm.Dialector
+	switch strings.ToLower(envDialector) {
+	case "sqlite":
+		dialector = sqlite.Open(dbUrl)
+	case "mysql":
+		dialector = mysql.Open(dbUrl)
+	case "postgres":
+		dialector = postgres.Open(dbUrl)
+	default:
+		log.Fatal().Err(err).Msg("connection error:")
+	}
+	db, err = gorm.Open(dialector, &gorm.Config{
+		SkipDefaultTransaction: true,
+		PrepareStmt:            true,
+	})
 	if err != nil {
-		log.Fatal("connection error:", err)
+		log.Fatal().Err(err).Msg("connection error:")
 	} else {
-		log.Debug("Db Connected")
+		log.Debug().Msg("Db Connected")
 	}
 
 	migrate()
 	createAdmin()
-	createTemplate()
-	createSmtp()
 }
 
 func migrate() {
-	db.AutoMigrate(&Client{})
+	db.AutoMigrate(&User{})
 	db.AutoMigrate(&Smtp{})
 	db.AutoMigrate(&Template{})
 	db.AutoMigrate(&Email{})
+	db.AutoMigrate(&ApiKey{})
 }
 
 func createAdmin() {
-	clientId := utils.GetEnvOr("CLIENT_ID", func() string {
-		return utils.GenString(50)
-	})
-	clientSecret := utils.GetEnvOr("CLIENT_SECRET", func() string {
-		return utils.GenString(100)
-	})
 
-	if err := db.First(&Client{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-		log.Debug("Admin Created")
+	if err := db.Take(&User{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		email := utils.GetEnvOr("ADMIN_EMAIL", func() string {
+			return utils.GenString(50)
+		})
+		password := utils.GetEnvOr("ADMIN_PASSWORD", func() string {
+			return utils.GenString(100)
+		})
 
-		client := Client{
-			Name:         "Admin",
-			ClientId:     clientId,
-			ClientSecret: clientSecret,
+		log.Debug().Msg("Admin Created")
+
+		user := User{
+			Name:  "Admin",
+			Email: email,
+		}
+		err := user.SetPassword(password)
+		if err != nil {
+			log.Fatal().Err(err).Msg("Admin Password Error")
 		}
 
-		client.Save()
-
-		fmt.Printf("ClientId: %s\n", client.ClientId)
-		fmt.Printf("ClientSecret: %s\n", client.ClientSecret)
-	}
-}
-
-func createTemplate() {
-	if err := db.First(&Template{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-		t := Template{
-			Name:         "Default",
-			TemplateHtml: "<h1>{{.Name}}</h1>",
-			TemplateText: "{{.Name}}",
-			JsonSchema:   "{ Name: string }",
-		}
-
-		t.Save()
-	}
-}
-
-func createSmtp() {
-	if err := db.First(&Smtp{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-		s := Smtp{
-			Name:     "Default",
-			Server:   "localhost",
-			Port:     1025,
-			Email:    "sample@email.com",
-			User:     "sample@email.com",
-			Password: "empty",
-			Default:  false,
-		}
-		s.Base64Password()
-		s.Save()
+		user.Save()
 	}
 }
