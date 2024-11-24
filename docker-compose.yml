@@ -1,24 +1,17 @@
 services:
   backend:
-    image: docker.io/library/api_email_client:local
+    image: ghcr.io/ricardoalcantara/api-email-client-backend:latest
     # ports:
     #   - "8080:8080"
-    environment:
-      - DB_URL=host=postgres user=postgres password=postgres dbname=api_email_client port=5432 TimeZone=America/Sao_Paulo
-      - DB_DIALECTOR=postgres
-      - ADMIN_EMAIL=admin@email.com
-      - ADMIN_PASSWORD=admin00
-      - JWT_LIFESPAN=45
-      - JWT_SECRET=admin
-      - API_HOST=
-      - API_PORT=5555
+    env_file:
+      - .env
     depends_on:
       - postgres
     restart: unless-stopped
     
 
   frontend:
-    image: docker.io/library/api_email_client_frontend:local
+    image: ghcr.io/ricardoalcantara/api-email-client-frontend:latest
     ports:
       - "5173:80"
     depends_on:

@@ -63,6 +63,14 @@ services:
       - API_PORT=5555
 ```
 
+Or you can use the `.env.example` file as a template.
+```yaml
+services:
+  backend:
+    env_file:
+      - .env
+``` 
+
 ## Cors
 
 The application does not support CORS by default. It's desined to be used behind a reverse proxy, such as Nginx.
