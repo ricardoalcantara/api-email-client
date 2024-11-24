@@ -1,5 +1,22 @@
 # Email Template Application
 
+## TEMP
+docker run -it --rm \
+  --name frontend \
+  -p 5173:80 \
+  -v $(pwd)/frontend/docker/configure.sh:/docker-entrypoint.d/configure.sh \
+  -e BACKEND_URL=http://backend:3000 \
+  docker.io/library/api_email_client_frontend:local
+
+
+docker run -it --rm \
+  --name frontend \
+  -p 5173:80 \
+  -v $(pwd)/frontend/docker/default.conf:/etc/nginx/conf.d/default.conf \
+  -e BACKEND_URL=http://backend:3000 \
+  docker.io/library/api_email_client_frontend:local
+
+
 A web application built with Go and React for managing email templates and sending emails using custom SMTP configurations. This application allows you to create, save, and use email templates with dynamic content through JSON parsing.
 
 ## Features
