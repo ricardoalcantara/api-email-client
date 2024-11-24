@@ -1,22 +1,5 @@
 # Email Template Application
 
-## TEMP
-docker run -it --rm \
-  --name frontend \
-  -p 5173:80 \
-  -v $(pwd)/frontend/docker/configure.sh:/docker-entrypoint.d/configure.sh \
-  -e BACKEND_URL=http://backend:3000 \
-  docker.io/library/api_email_client_frontend:local
-
-
-docker run -it --rm \
-  --name frontend \
-  -p 5173:80 \
-  -v $(pwd)/frontend/docker/default.conf:/etc/nginx/conf.d/default.conf \
-  -e BACKEND_URL=http://backend:3000 \
-  docker.io/library/api_email_client_frontend:local
-
-
 A web application built with Go and React for managing email templates and sending emails using custom SMTP configurations. This application allows you to create, save, and use email templates with dynamic content through JSON parsing.
 
 ## Features
@@ -60,7 +43,7 @@ cd [project-directory]
 docker compose up -d
 ```
 
-The application will be available at `http://localhost:3000`
+The application will be available at `http://localhost:5173`
 
 ## Configuration
 
@@ -68,12 +51,22 @@ Configure the application using environment variables in your `docker-compose.ym
 
 ```yaml
 services:
-  app:
+  backend:
     environment:
-      - DB_CONNECTION=your_database_connection_string
-      - JWT_SECRET=your_jwt_secret
-      - SMTP_DEFAULT_HOST=smtp.example.com
+      - DB_URL=host=postgres user=postgres password=postgres dbname=api_email_client port=5432 TimeZone=America/Sao_Paulo
+      - DB_DIALECTOR=postgres
+      - ADMIN_EMAIL=admin@email.com
+      - ADMIN_PASSWORD=admin00
+      - JWT_LIFESPAN=45
+      - JWT_SECRET=admin
+      - API_HOST=
+      - API_PORT=5555
 ```
+
+## Cors
+
+The application does not support CORS by default. It's desined to be used behind a reverse proxy, such as Nginx.
+If you need to enable CORS, you may open an issue or create a pull request.
 
 ## Usage
 
