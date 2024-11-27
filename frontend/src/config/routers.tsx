@@ -7,15 +7,15 @@ import { Login } from "@/pages/login";
 
 import TemplateList from "@/pages/template";
 import TemplateCreate from "@/pages/template/new";
-import TemplateEdit from "@/pages/template/:slug";
+import TemplateEdit from "@/pages/template/slug";
 
 import SmtpList from "@/pages/smtp";
 import SmtpCreate from "@/pages/smtp/new";
-import SmtpEdit from "@/pages/smtp/:slug";
+import SmtpEdit from "@/pages/smtp/slug";
 
 import EmailList from "@/pages/email";
 import ApiKeyList from "@/pages/api-key";
-import EmailTemplateGenerator from "@/pages/template/:slug/generator";
+import EmailTemplateGenerator from "@/pages/template/slug/generator";
 import EmailSend from "@/pages/email/send";
 import UserHome from "@/pages/user";
 

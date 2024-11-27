@@ -19,7 +19,7 @@ export const formSchema = z.object({
   name: z.string().min(2, {
     message: "Name must be at least 2 characters.",
   }),
-  slug: z.string().min(2, {  // Add this
+  slug: z.string().min(2, {
     message: "Slug must be at least 2 characters.",
   }),
   server: z.string().min(2, {
@@ -31,12 +31,8 @@ export const formSchema = z.object({
   email: z.string().email({
     message: "Please enter a valid email address.",
   }),
-  user: z.string().min(2, {
-    message: "Username is required.",
-  }),
-  password: z.string().min(2, {
-    message: "Password is required.",
-  }),
+  user: z.string(),
+  password: z.string(),
   default: z.boolean().default(false),
 });
 
@@ -44,7 +40,8 @@ export const formSchemaEdit = z.object({
   name: z.string().min(2, {
     message: "Name must be at least 2 characters.",
   }),
-  slug: z.string().min(2, {  // Add this
+  slug: z.string().min(2, {
+    // Add this
     message: "Slug must be at least 2 characters.",
   }),
   server: z.string().min(2, {
@@ -132,9 +129,7 @@ const SmtpForm = ({ onSubmit, isLoading, defaultValues }: SmtpFormProps) => {
                 <FormControl>
                   <Input placeholder="smtp.example.com" {...field} />
                 </FormControl>
-                <FormDescription>
-                  The SMTP server address.
-                </FormDescription>
+                <FormDescription>The SMTP server address.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -229,9 +224,7 @@ const SmtpForm = ({ onSubmit, isLoading, defaultValues }: SmtpFormProps) => {
             render={({ field }) => (
               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
-                  <FormLabel className="text-base">
-                    Set as Default
-                  </FormLabel>
+                  <FormLabel className="text-base">Set as Default</FormLabel>
                   <FormDescription>
                     Make this the default SMTP configuration.
                   </FormDescription>
