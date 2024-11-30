@@ -44,6 +44,7 @@ func (s *EmailService) post(input types.SendEmailDto) error {
 	} else {
 		subject = t.Subject
 	}
+	subject = emailengine.GetTemplate(subject, input.Data)
 
 	email := models.Email{
 		SmtpId:   smtp.ID,
