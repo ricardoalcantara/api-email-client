@@ -127,3 +127,27 @@ func (s *TemplateService) Delete(slug string) error {
 	}
 	return template.Delete()
 }
+
+func (s *TemplateService) Clone(slug string) (*types.TemplateDto, error) {
+	template, err := models.TemplateGetBySlug(slug)
+	if err != nil {
+		return nil, err
+	}
+
+	newTemplate := models.Template{
+		Name:         template.Name + " (Clone)",
+		Slug:         template.Slug + "-clone",
+		JsonSchema:   template.JsonSchema,
+		Subject:      template.Subject,
+		TemplateHtml: template.TemplateHtml,
+		TemplateText: template.TemplateText,
+	}
+
+	err = newTemplate.Save()
+	if err != nil {
+		return nil, err
+	}
+
+	view := NewTemplateDto(&newTemplate)
+	return &view, nil
+}

@@ -9,14 +9,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Trash2 } from "lucide-react";
+import { Copy, Plus, Trash2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { useDeleteTemplateMutation, useListTemplateQuery } from "@/services";
+import { useCloneTemplateMutation, useDeleteTemplateMutation, useListTemplateQuery } from "@/services";
 import { TemplateDto } from "@/services/dto";
 
 const TemplateList = () => {
   const navigate = useNavigate();
   const [deleteTemplate, { isLoading: isDeleting }] = useDeleteTemplateMutation();
+  const [cloneTemplate, { isLoading: isCloning }] = useCloneTemplateMutation();
   const { data: templates, isLoading, isError, refetch } = useListTemplateQuery(undefined, {
     refetchOnMountOrArgChange: true
   });
@@ -38,6 +39,26 @@ const TemplateList = () => {
       console.error("Failed to refetch API keys:", err);
     }
   };
+
+  const handleClone = async (slug: string) => {
+    let result: TemplateDto | undefined;
+    try {
+      result = await cloneTemplate(slug).unwrap();
+    } catch (err) {
+      console.error("Failed to clone template:", err);
+    }
+
+    try {
+      await refetch().unwrap();
+    } catch (err) {
+      console.error("Failed to refetch API keys:", err);
+    }
+
+    if (result) {
+      navigate(`/template/${result.slug}`);
+    }
+  };
+
 
   return (
     <div className="p-8">
@@ -73,11 +94,26 @@ const TemplateList = () => {
                     <TableCell onClick={() => handleRowClick(item)}>{item.name}</TableCell>
                     <TableCell onClick={() => handleRowClick(item)}>{item.subject}</TableCell>
                     <TableCell onClick={() => handleRowClick(item)}>{item.slug}</TableCell>
-                    <TableCell>
+                    <TableCell className="flex gap-2">
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => handleDelete(item.slug)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleClone(item.slug);
+                        }}
+                        className="hover:text-primary"
+                        disabled={isCloning || isLoading}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(item.slug);
+                        }}
                         className="hover:text-destructive"
                         disabled={isDeleting || isLoading}
                       >

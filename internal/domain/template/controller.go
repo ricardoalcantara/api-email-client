@@ -146,13 +146,27 @@ func (controller *TemplateController) delete(c *gin.Context) {
 
 	err := controller.service.Delete(slug)
 	if err != nil {
-		errId := uuid.New()
-		log.Error().Str("error_id", errId.String()).Err(err).Msg("Error")
-		c.JSON(http.StatusInternalServerError, types.ErrorResponse{Error: "Internal Server Error: " + errId.String()})
+		c.JSON(http.StatusBadRequest, types.ErrorResponse{Error: err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusAccepted, nil)
+}
+
+func (controller *TemplateController) clone(c *gin.Context) {
+	slug := c.Param("slug")
+	if slug == "" {
+		c.JSON(http.StatusBadRequest, types.ErrorResponse{Error: "id/slug is required"})
+		return
+	}
+
+	template, err := controller.service.Clone(slug)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, types.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusAccepted, template)
 }
 
 func RegisterRoutes(r *gin.Engine) {
@@ -167,5 +181,6 @@ func RegisterRoutes(r *gin.Engine) {
 	routes.GET("/template/:slug", controller.get)
 	routes.DELETE("/template/:slug", controller.delete)
 	routes.PATCH("/template/:slug", controller.patch)
+	routes.POST("/template/:slug/clone", controller.clone)
 	routes.PUT("/template/:slug", controller.put)
 }

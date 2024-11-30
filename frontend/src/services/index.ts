@@ -94,6 +94,12 @@ export const api = createApi({
         body,
       }),
     }),
+    cloneTemplate: builder.mutation<TemplateDto, string>({
+      query: (slug) => ({
+        url: `/api/template/${slug}/clone`,
+        method: "POST",
+      }),
+    }),
 
     // SMTP endpoints
     listSmtp: builder.query<ListView<SmtpDto>, void>({
@@ -209,6 +215,7 @@ export const {
   usePatchTemplateMutation,
   useDeleteTemplateMutation,
   useGenerateTemplateMutation,
+  useCloneTemplateMutation,
   // SMTP hooks
   useListSmtpQuery,
   usePostSmtpMutation,

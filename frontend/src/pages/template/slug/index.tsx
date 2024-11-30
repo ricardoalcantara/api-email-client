@@ -12,7 +12,7 @@ import { useParams } from 'react-router-dom';
 const TemplateEdit = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: template, isLoading: isLoadingTemplate } = useGetTemplateQuery(slug!, {
-    refetchOnMountOrArgChange: true
+    refetchOnMountOrArgChange: true,
   });
 
   const navigate = useNavigate();
