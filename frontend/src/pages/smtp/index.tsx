@@ -55,6 +55,7 @@ const SmtpList = () => {
                   <TableHead>Port</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>User</TableHead>
+                  <TableHead>Slug</TableHead>
                   <TableHead className="text-center">Is Default</TableHead>
                   <TableHead className="w-[100px]">Actions</TableHead>
                 </TableRow>
@@ -70,6 +71,7 @@ const SmtpList = () => {
                     <TableCell onClick={() => handleRowClick(item)}>{item.port}</TableCell>
                     <TableCell onClick={() => handleRowClick(item)}>{item.email}</TableCell>
                     <TableCell onClick={() => handleRowClick(item)}>{item.user}</TableCell>
+                    <TableCell onClick={() => handleRowClick(item)}>{item.slug}</TableCell>
                     <TableCell className="text-center">
                       {item.default && (
                         <Badge variant="default">Default</Badge>
