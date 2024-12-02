@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	h "github.com/matcornic/hermes/v2"
@@ -14,6 +15,7 @@ import (
 )
 
 var hermes *h.Hermes
+var emailChan chan models.Email
 
 func Create() {
 	hermes = &h.Hermes{
@@ -39,12 +41,16 @@ func Create() {
 	}
 
 	if emailChan == nil {
-		emailChan = make(chan models.Email)
+		emailChanSize := 100
+		if size := os.Getenv("EMAIL_QUEUE_SIZE"); size != "" {
+			if parsedSize, err := strconv.Atoi(size); err == nil {
+				emailChanSize = parsedSize
+			}
+		}
+		emailChan = make(chan models.Email, emailChanSize)
 		go worker(emailChan)
 	}
 }
-
-var emailChan chan models.Email
 
 func worker(emailChan <-chan models.Email) {
 	for email := range emailChan {
