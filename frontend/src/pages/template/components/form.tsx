@@ -47,8 +47,8 @@ export const formSchema = z.object({
         message: "Invalid JSON Schema format.",
       }
     ),
-  template_html: z.string().default(""),
-  template_text: z.string().default(""),
+  template_html: z.string(),
+  template_text: z.string(),
 });
 
 export interface TemplateFormProps {

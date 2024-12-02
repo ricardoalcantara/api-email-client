@@ -29,6 +29,7 @@ export const api = createApi({
       return headers;
     },
   }),
+  tagTypes: ["Template", "Smtp", "Email", "ApiKey"],
   endpoints: (builder) => ({
     login: builder.mutation<TokenDto, LoginDto>({
       query: (login) => ({
@@ -57,6 +58,10 @@ export const api = createApi({
         url: `/api/template/${slug}`,
         method: "GET",
       }),
+      providesTags: (_result, _error, slug) => [
+        { type: 'Template', id: slug },
+        'Template'
+      ]
     }),
     putTemplate: builder.mutation<
       TemplateDto,
@@ -67,6 +72,10 @@ export const api = createApi({
         method: "PUT",
         body: template,
       }),
+      invalidatesTags: (_result, _error, { slug }) => [
+        { type: 'Template', id: slug },
+        'Template'
+      ]
     }),
     patchTemplate: builder.mutation<
       TemplateDto,
@@ -77,6 +86,10 @@ export const api = createApi({
         method: "PATCH",
         body: template,
       }),
+      invalidatesTags: (_result, _error, { slug }) => [
+        { type: 'Template', id: slug },
+        'Template'
+      ]
     }),
     deleteTemplate: builder.mutation<void, string>({
       query: (slug) => ({
@@ -120,6 +133,10 @@ export const api = createApi({
         url: `/api/smtp/${slug}`,
         method: "GET",
       }),
+      providesTags: (_result, _error, slug) => [
+        { type: 'Smtp', id: slug },
+        'Smtp'
+      ]
     }),
     putSmtp: builder.mutation<SmtpDto, { slug: string; smtp: CreateSmtpDto }>({
       query: ({ slug, smtp }) => ({
@@ -127,6 +144,10 @@ export const api = createApi({
         method: "PUT",
         body: smtp,
       }),
+      invalidatesTags: (_result, _error, { slug }) => [
+        { type: 'Smtp', id: slug },
+        'Smtp'
+      ]
     }),
     patchSmtp: builder.mutation<SmtpDto, { slug: string; smtp: UpdateSmtpDto }>(
       {
@@ -135,6 +156,10 @@ export const api = createApi({
           method: "PATCH",
           body: smtp,
         }),
+        invalidatesTags: (_result, _error, { slug }) => [
+          { type: 'Smtp', id: slug },
+          'Smtp'
+        ]
       }
     ),
     deleteSmtp: builder.mutation<void, string>({
